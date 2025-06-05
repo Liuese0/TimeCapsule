@@ -51,10 +51,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       await userCredential.user!.sendEmailVerification();
 
+      // 사용자 문서 생성 (친구 관련 필드 추가)
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'email': _emailController.text.trim(),
+        'id': _emailController.text.trim(), // 캡슐에서 사용하는 id 필드
         'name': _nameController.text.trim(),
         'status': 'pending',
+        'friends': [], // 친구 목록
+        'like': [], // 좋아요한 캡슐 목록
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
