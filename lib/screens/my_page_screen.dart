@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});
@@ -565,7 +566,15 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
 
     if (confirm == true) {
       try {
+        // 자동 로그인 정보 삭제
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('remember_me');
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
+
+        // Firebase 로그아웃
         await FirebaseAuth.instance.signOut();
+
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -708,7 +717,7 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 200,
+                expandedHeight: 150,
                 floating: false,
                 pinned: true,
                 backgroundColor: const Color(0xFF0F172A),

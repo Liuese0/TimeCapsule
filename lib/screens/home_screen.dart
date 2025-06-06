@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         capsulesWithCreatorName.add({
           'id': doc.id,
           'name': data['name'],
+          'description': data['description'], // 설명 추가
           'owners': data['owners'],
           'creatorName': creatorName,
           'createdDate': data['createdDate'].toDate(),
@@ -710,7 +711,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+
+          // 캡슐 설명 추가
+          if (capsule['description'] != null && capsule['description'].toString().trim().isNotEmpty) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F2937),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                capsule['description'].toString(),
+                style: const TextStyle(
+                  color: Color(0xFFD1D5DB),
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -931,7 +956,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                       // 캡슐 리스트
                       SizedBox(
-                        height: 380,
+                        height: 400, // 높이를 380에서 400으로 증가
                         child: ValueListenableBuilder<String>(
                           valueListenable: _selectedCategoryNotifier,
                           builder: (context, selectedCategory, child) {
