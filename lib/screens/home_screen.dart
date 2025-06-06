@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _selectedIndex = 1;
   String userName = "";
   final ValueNotifier<String> _selectedCategoryNotifier = ValueNotifier<String>("MINE");
@@ -22,6 +22,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
+  PageController? _pageController;
+  AnimationController? _cardAnimationController;
+  Animation<double>? _cardScaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _cardAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _cardScaleAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _cardAnimationController!,
+      curve: Curves.easeInOut,
+    ));
+
+    _fetchUserName();
+    _fetchCapsules();
+    _cardAnimationController?.forward();
+  }
+
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    _cardAnimationController?.dispose();
+    super.dispose();
+  }
 
   // Firestore에서 사용자 이름을 가져옵니다.
   Future<void> _fetchUserName() async {
@@ -116,13 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchUserName();
-    _fetchCapsules();
-  }
-
   final List<Widget> _pages = [
     const MyPageScreen(),
     const HomeScreen(),
@@ -145,7 +170,35 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('알림'),
+          backgroundColor: const Color(0xFF2D3748),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4F46E5).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.notifications_active,
+                  color: Color(0xFF4F46E5),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                '알림',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
           content: SizedBox(
             width: double.maxFinite,
             child: StreamBuilder<QuerySnapshot>(
@@ -155,11 +208,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF4F46E5),
+                    ),
+                  );
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('새로운 알림이 없습니다.'));
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4A5568),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_none,
+                          size: 48,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        '새로운 알림이 없습니다.',
+                        style: TextStyle(
+                          color: Color(0xFFD1D5DB),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  );
                 }
 
                 final capsules = snapshot.data!.docs;
@@ -169,25 +250,108 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final capsule = capsules[index].data() as Map<String, dynamic>;
                     final capsuleId = capsules[index].id;
-                    return ListTile(
-                      title: Text(capsule['name'] ?? '알 수 없는 캡슐'),
-                      subtitle: const Text('초대 상태: 대기 중'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4A5568),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFF4F46E5).withOpacity(0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TextButton(
-                            onPressed: () {
-                              _acceptInvitation(capsuleId);
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('수락'),
+                          Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF4F46E5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.archive,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      capsule['name'] ?? '알 수 없는 캡슐',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Text(
+                                      '캡슐 초대가 도착했습니다',
+                                      style: TextStyle(
+                                        color: Color(0xFF9CA3AF),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          TextButton(
-                            onPressed: () {
-                              _rejectInvitation(capsuleId);
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('거절'),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _acceptInvitation(capsuleId);
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF10B981),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    '수락',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _rejectInvitation(capsuleId);
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF4A5568),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    '거절',
+                                    style: TextStyle(
+                                      color: Color(0xFFD1D5DB),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -202,7 +366,19 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('닫기'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                '닫기',
+                style: TextStyle(
+                  color: Color(0xFF4F46E5),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
@@ -279,367 +455,55 @@ class _HomeScreenState extends State<HomeScreen> {
     return events[DateTime(day.year, day.month, day.day)] ?? [];
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final capsuleEvents = _getCapsulesByDay();
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF1F2937), // bg-gray-900
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: Container(
-          padding: const EdgeInsets.only(top: 25, left: 16, right: 16, bottom: 8),
-          color: const Color(0xFF1F2937),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 헤더: 인사말 및 사용자 이름 (카테고리 "MINE" 선택 시 indigo, 아니면 흰색)
-              Row(
-                children: [
-                  const Text(
-                    '안녕하세요, ',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white),
-                  ),
-                  ValueListenableBuilder<String>(
-                    valueListenable: _selectedCategoryNotifier,
-                    builder: (context, selectedCategory, child) {
-                      return Text(
-                        userName,
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          fontWeight: FontWeight.bold,
-                          color: selectedCategory == "MINE"
-                              ? const Color.fromRGBO(94, 53, 189, 1)
-                              : Colors.white,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              // 알림 버튼
-              IconButton(
-                icon: const Icon(Icons.notifications, color: Color(0xFF9CA3AF)), // text-gray-400
-                onPressed: () {
-                  _showNotificationDialog(context);
-                },
-              )
-            ],
-          ),
-        ),
-      ),
-      body: _selectedIndex == 1
-          ? FutureBuilder<Map<String, int>>(
-        future: _fetchCapsuleCounts(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final counts = snapshot.data ?? {'created': 0, 'coOwned': 0};
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 카테고리 선택 토글
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF374151), // bg-gray-800
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: _selectedCategoryNotifier.value == "MINE"
-                                    ? const Color(0xFF4F46E5) // 선택 시
-                                    : Colors.transparent,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              onPressed: () {
-                                _selectedCategoryNotifier.value = "MINE";
-                                setState(() {});
-                              },
-                              child: Text(
-                                "MINE",
-                                style: TextStyle(
-                                    color: _selectedCategoryNotifier.value == "MINE"
-                                        ? Colors.white
-                                        : const Color(0xFF9CA3AF)),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: _selectedCategoryNotifier.value == "ELSE"
-                                    ? const Color(0xFF4F46E5)
-                                    : Colors.transparent,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              onPressed: () {
-                                _selectedCategoryNotifier.value = "ELSE";
-                                setState(() {});
-                              },
-                              child: Text(
-                                "ELSE",
-                                style: TextStyle(
-                                    color: _selectedCategoryNotifier.value == "ELSE"
-                                        ? Colors.white
-                                        : const Color(0xFF9CA3AF)),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: _selectedCategoryNotifier.value == "LIKE"
-                                    ? const Color(0xFF4F46E5)
-                                    : Colors.transparent,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              onPressed: () {
-                                _selectedCategoryNotifier.value = "LIKE";
-                                setState(() {});
-                              },
-                              child: Text(
-                                "LIKE",
-                                style: TextStyle(
-                                    color: _selectedCategoryNotifier.value == "LIKE"
-                                        ? Colors.white
-                                        : const Color(0xFF9CA3AF)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // 캡슐 카운트
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Created Capsules', style: TextStyle(color: Color(0xFFD1D5DB), fontSize: 12)),
-                            Text('${counts['created']}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Co-Owned Capsules', style: TextStyle(color: Color(0xFFD1D5DB), fontSize: 12)),
-                            Text('${counts['coOwned']}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 캡슐 리스트
-                  SizedBox(
-                    height: 300,
-                    child: ValueListenableBuilder<String>(
-                      valueListenable: _selectedCategoryNotifier,
-                      builder: (context, selectedCategory, child) {
-                        final filteredCapsules = capsuleList.where((capsule) {
-                          if (selectedCategory == "MINE") {
-                            return capsule['creatorName'] == userName;
-                          } else if (selectedCategory == "ELSE") {
-                            return capsule['owners']?.contains(FirebaseAuth.instance.currentUser?.email) ?? false;
-                          } else if (selectedCategory == "LIKE") {
-                            return capsule['liked'] == true;
-                          }
-                          return false;
-                        }).toList();
-
-                        if (filteredCapsules.isEmpty) {
-                          return const Center(child: Text('표시할 캡슐이 없습니다.', style: TextStyle(color: Color(0xFFD1D5DB))));
-                        }
-
-                        return PageView.builder(
-                          itemCount: filteredCapsules.length,
-                          itemBuilder: (context, index) {
-                            final capsule = filteredCapsules[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Card(
-                                color: const Color(0xFF374151), // bg-gray-800
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        capsule['name'],
-                                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      // 캡슐 상세 정보
-                                      Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: const [
-                                              Text('생성자:', style: TextStyle(fontSize: 16, color: Color(0xFFD1D5DB))),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const SizedBox(width: 70),
-                                              Text(capsule['creatorName'], style: const TextStyle(fontSize: 16, color: Colors.white)),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: const [
-                                              Text('공동소유주:', style: TextStyle(fontSize: 16, color: Color(0xFFD1D5DB))),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const SizedBox(width: 100),
-                                              Flexible(
-                                                child: Text(
-                                                  (capsule['owners'] as List<dynamic>).join(', '),
-                                                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('생성일:', style: TextStyle(fontSize: 16, color: Color(0xFFD1D5DB))),
-                                              Text(DateFormat('yyyy-MM-dd').format(capsule['createdDate']), style: const TextStyle(fontSize: 16, color: Colors.white)),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('열람일:', style: TextStyle(fontSize: 16, color: Color(0xFFD1D5DB))),
-                                              Text(DateFormat('yyyy-MM-dd').format(capsule['openDate']), style: const TextStyle(fontSize: 16, color: Colors.white)),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('상태:', style: TextStyle(fontSize: 16, color: Color(0xFFD1D5DB))),
-                                              Text(
-                                                capsule['status'],
-                                                style: TextStyle(fontSize: 16, color: capsule['status'] == '대기중' ? const Color(0xFF3B82F6) : Colors.white),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  // 캘린더 섹션
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF374151), // bg-gray-800
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: TableCalendar(
-                        firstDay: DateTime.utc(2000, 1, 1),
-                        lastDay: DateTime.utc(2100, 12, 31),
-                        focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                        onDaySelected: (selectedDay, focusedDay) {
-                          setState(() {
-                            _selectedDay = selectedDay;
-                            _focusedDay = focusedDay;
-                          });
-                        },
-                        eventLoader: _getEventsForDay,
-                        calendarStyle: CalendarStyle(
-                          todayDecoration: BoxDecoration(color: const Color(0xFF4F46E5), shape: BoxShape.circle),
-                          selectedDecoration: BoxDecoration(color: const Color(0xFF4338CA), shape: BoxShape.circle),
-                          todayTextStyle: const TextStyle(color: Colors.white),
-                          defaultTextStyle: const TextStyle(color: Colors.white),
-                        ),
-                        headerStyle: HeaderStyle(
-                          formatButtonVisible: false,
-                          titleCentered: true,
-                          titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          leftChevronIcon: const Icon(Icons.chevron_left, color: Color(0xFFD1D5DB)),
-                          rightChevronIcon: const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
-                        ),
-                        calendarBuilders: CalendarBuilders(
-                          markerBuilder: (context, day, events) {
-                            if (events.isEmpty) return const SizedBox();
-                            return Wrap(
-                              spacing: 2,
-                              children: events.map((event) {
-                                Color markerColor = Colors.grey;
-                                if (event != null && event is Map && (event['status'] ?? '') == '대기중') {
-                                  markerColor = const Color(0xFF1D4ED8);
-                                }
-                                return Container(
-                                  width: 7,
-                                  height: 7,
-                                  margin: const EdgeInsets.symmetric(horizontal: 0.5),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: markerColor,
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+  Widget _buildCategoryButton(String category, String label, IconData icon) {
+    final isSelected = _selectedCategoryNotifier.value == category;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: InkWell(
+        onTap: () {
+          _selectedCategoryNotifier.value = category;
+          setState(() {});
         },
-      )
-          : _pages[_selectedIndex],
-      // 커스텀 Bottom Navigation Bar
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF374151), // bg-gray-800
-          border: Border(top: BorderSide(color: const Color(0xFF4B5563))), // border-gray-700
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: isSelected
+                ? const LinearGradient(
+              colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )
+                : null,
+            color: isSelected ? null : const Color(0xFF374151),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isSelected
+                ? [
+              BoxShadow(
+                color: const Color(0xFF4F46E5).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ]
+                : null,
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildBottomNavItem(Icons.person, 0),
-              _buildBottomNavItem(Icons.home, 1),
-              _buildBottomNavItem(Icons.group, 2),
-              _buildBottomNavItem(Icons.archive, 3),
+              Icon(
+                icon,
+                color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
         ),
@@ -647,17 +511,822 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBottomNavItem(IconData icon, int index) {
+  Widget _buildStatCard(String title, String count, IconData icon, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              color.withOpacity(0.1),
+              color.withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 20,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              count,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Color(0xFFD1D5DB),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCapsuleCard(Map<String, dynamic> capsule) {
+    final status = capsule['status'];
+    final openDate = capsule['openDate'] as DateTime;
+    final createdDate = capsule['createdDate'] as DateTime;
+
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+
+    if (status == '대기중') {
+      statusColor = const Color(0xFFEF4444);
+      statusIcon = Icons.lock_outline;
+      statusText = '대기중';
+    } else {
+      statusColor = const Color(0xFF10B981);
+      statusIcon = Icons.celebration_outlined;
+      statusText = '열림';
+    }
+
+    return _cardScaleAnimation != null
+        ? AnimatedBuilder(
+      animation: _cardScaleAnimation!,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _cardScaleAnimation!.value,
+          child: _buildCardContent(capsule, statusColor, statusIcon, statusText, openDate, createdDate),
+        );
+      },
+    )
+        : _buildCardContent(capsule, statusColor, statusIcon, statusText, openDate, createdDate);
+  }
+
+  Widget _buildCardContent(Map<String, dynamic> capsule, Color statusColor, IconData statusIcon, String statusText, DateTime openDate, DateTime createdDate) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF374151),
+            const Color(0xFF2D3748),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
+                  child: Text(
+                    (capsule['name'] ?? 'C')[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      capsule['name'],
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 16,
+                          color: const Color(0xFF9CA3AF),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'by ${capsule['creatorName']}',
+                          style: const TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: statusColor.withOpacity(0.5)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, color: statusColor, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F2937),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                _buildInfoRow(
+                  Icons.group_outlined,
+                  '공동소유주',
+                  (capsule['owners'] as List<dynamic>).join(', ').isEmpty
+                      ? '없음'
+                      : (capsule['owners'] as List<dynamic>).join(', '),
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  Icons.calendar_today_outlined,
+                  '생성일',
+                  DateFormat('yyyy년 MM월 dd일').format(createdDate),
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  Icons.schedule_outlined,
+                  '열람일',
+                  DateFormat('yyyy년 MM월 dd일').format(openDate),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: const Color(0xFF9CA3AF),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$label:',
+          style: const TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.right,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F172A),
+      body: _selectedIndex == 1
+          ? FutureBuilder<Map<String, int>>(
+        future: _fetchCapsuleCounts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF4F46E5),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          } else {
+            final counts = snapshot.data ?? {'created': 0, 'coOwned': 0};
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 120,
+                  floating: false,
+                  pinned: true,
+                  backgroundColor: const Color(0xFF0F172A),
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF0F172A),
+                            const Color(0xFF1E293B),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                '안녕하세요 👋',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: const Color(0xFF9CA3AF),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              ValueListenableBuilder<String>(
+                                valueListenable: _selectedCategoryNotifier,
+                                builder: (context, selectedCategory, child) {
+                                  return ShaderMask(
+                                    shaderCallback: (bounds) => const LinearGradient(
+                                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                    ).createShader(bounds),
+                                    child: Text(
+                                      userName,
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF374151),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.notifications_outlined,
+                                color: Color(0xFF9CA3AF),
+                                size: 24,
+                              ),
+                              onPressed: () {
+                                _showNotificationDialog(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      // 카테고리 선택
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        child: Row(
+                          children: [
+                            _buildCategoryButton("MINE", "내 캡슐", Icons.person_outline),
+                            const SizedBox(width: 12),
+                            _buildCategoryButton("ELSE", "공유됨", Icons.group_outlined),
+                            const SizedBox(width: 12),
+                            _buildCategoryButton("LIKE", "좋아요", Icons.favorite_outline),
+                          ],
+                        ),
+                      ),
+
+                      // 통계 카드
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            _buildStatCard(
+                              'Created',
+                              '${counts['created']}',
+                              Icons.create_outlined,
+                              const Color(0xFF4F46E5),
+                            ),
+                            const SizedBox(width: 16),
+                            _buildStatCard(
+                              'Co-Owned',
+                              '${counts['coOwned']}',
+                              Icons.group_outlined,
+                              const Color(0xFF10B981),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // 캡슐 리스트
+                      SizedBox(
+                        height: 380,
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: _selectedCategoryNotifier,
+                          builder: (context, selectedCategory, child) {
+                            final filteredCapsules = capsuleList.where((capsule) {
+                              if (selectedCategory == "MINE") {
+                                return capsule['creatorName'] == userName;
+                              } else if (selectedCategory == "ELSE") {
+                                return capsule['owners']?.contains(FirebaseAuth.instance.currentUser?.email) ?? false;
+                              } else if (selectedCategory == "LIKE") {
+                                return capsule['liked'] == true;
+                              }
+                              return false;
+                            }).toList();
+
+                            // 캡슐 정렬: 열람일 기준으로 정렬
+                            filteredCapsules.sort((a, b) {
+                              final now = DateTime.now();
+                              final aOpenDate = a['openDate'] as DateTime;
+                              final bOpenDate = b['openDate'] as DateTime;
+
+                              final aIsToday = aOpenDate.year == now.year &&
+                                  aOpenDate.month == now.month &&
+                                  aOpenDate.day == now.day;
+                              final bIsToday = bOpenDate.year == now.year &&
+                                  bOpenDate.month == now.month &&
+                                  bOpenDate.day == now.day;
+
+                              final aIsOpened = aOpenDate.isBefore(now) || aIsToday;
+                              final bIsOpened = bOpenDate.isBefore(now) || bIsToday;
+
+                              // 1. 당일 열림 (가장 앞)
+                              if (aIsToday && !bIsToday) return -1;
+                              if (bIsToday && !aIsToday) return 1;
+                              if (aIsToday && bIsToday) return aOpenDate.compareTo(bOpenDate);
+
+                              // 2. 열리지 않은 것들 (열람일이 빠른 순)
+                              if (!aIsOpened && !bIsOpened) {
+                                return aOpenDate.compareTo(bOpenDate);
+                              }
+
+                              // 3. 열리지 않은 것이 열린 것보다 앞
+                              if (!aIsOpened && bIsOpened) return -1;
+                              if (aIsOpened && !bIsOpened) return 1;
+
+                              // 4. 둘 다 열린 것들 (열람일이 늦은 순 - 가장 뒤)
+                              return bOpenDate.compareTo(aOpenDate);
+                            });
+
+                            if (filteredCapsules.isEmpty) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.all(40),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF374151),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: const Color(0xFF4B5563),
+                                    style: BorderStyle.solid,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF4B5563),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Icon(
+                                        selectedCategory == "MINE"
+                                            ? Icons.archive_outlined
+                                            : selectedCategory == "ELSE"
+                                            ? Icons.group_outlined
+                                            : Icons.favorite_outline,
+                                        size: 48,
+                                        color: const Color(0xFF9CA3AF),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      selectedCategory == "MINE"
+                                          ? '아직 만든 캡슐이 없습니다'
+                                          : selectedCategory == "ELSE"
+                                          ? '공유받은 캡슐이 없습니다'
+                                          : '좋아요한 캡슐이 없습니다',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      selectedCategory == "MINE"
+                                          ? '첫 번째 추억 캡슐을 만들어보세요!'
+                                          : selectedCategory == "ELSE"
+                                          ? '친구들과 함께 캡슐을 만들어보세요!'
+                                          : '마음에 드는 캡슐에 좋아요를 눌러보세요!',
+                                      style: const TextStyle(
+                                        color: Color(0xFF9CA3AF),
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return PageView.builder(
+                              controller: _pageController,
+                              itemCount: filteredCapsules.length,
+                              itemBuilder: (context, index) {
+                                return _buildCapsuleCard(filteredCapsules[index]);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 캘린더 섹션
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF374151),
+                              const Color(0xFF2D3748),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Icon(
+                                    Icons.calendar_month,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '캡슐 캘린더',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '열람일을 확인해보세요',
+                                      style: TextStyle(
+                                        color: Color(0xFF9CA3AF),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1F2937),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: TableCalendar(
+                                firstDay: DateTime.utc(2000, 1, 1),
+                                lastDay: DateTime.utc(2100, 12, 31),
+                                focusedDay: _focusedDay,
+                                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                                onDaySelected: (selectedDay, focusedDay) {
+                                  setState(() {
+                                    _selectedDay = selectedDay;
+                                    _focusedDay = focusedDay;
+                                  });
+                                },
+                                eventLoader: _getEventsForDay,
+                                calendarStyle: CalendarStyle(
+                                  outsideDaysVisible: false,
+                                  weekendTextStyle: const TextStyle(color: Colors.white),
+                                  defaultTextStyle: const TextStyle(color: Colors.white),
+                                  todayDecoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  selectedDecoration: BoxDecoration(
+                                    color: const Color(0xFF10B981),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  todayTextStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  selectedTextStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  markerDecoration: BoxDecoration(
+                                    color: const Color(0xFFEF4444),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                headerStyle: HeaderStyle(
+                                  formatButtonVisible: false,
+                                  titleCentered: true,
+                                  titleTextStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  leftChevronIcon: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF374151),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.chevron_left,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  rightChevronIcon: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF374151),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.chevron_right,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                                daysOfWeekStyle: const DaysOfWeekStyle(
+                                  weekdayStyle: TextStyle(
+                                    color: Color(0xFF9CA3AF),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  weekendStyle: TextStyle(
+                                    color: Color(0xFF9CA3AF),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                calendarBuilders: CalendarBuilders(
+                                  markerBuilder: (context, day, events) {
+                                    if (events.isEmpty) return const SizedBox();
+                                    return Positioned(
+                                      bottom: 4,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: events.take(3).map((event) {
+                                          Color markerColor = const Color(0xFF10B981);
+                                          if (event != null && event is Map && (event['status'] ?? '') == '대기중') {
+                                            markerColor = const Color(0xFFEF4444);
+                                          }
+                                          return Container(
+                                            width: 6,
+                                            height: 6,
+                                            margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: markerColor,
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      )
+          : _pages[_selectedIndex],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF1E293B),
+              const Color(0xFF0F172A),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildBottomNavItem(Icons.person_outline, Icons.person, 0, '마이'),
+                _buildBottomNavItem(Icons.home_outlined, Icons.home, 1, '홈'),
+                _buildBottomNavItem(Icons.group_outlined, Icons.group, 2, '친구'),
+                _buildBottomNavItem(Icons.archive_outlined, Icons.archive, 3, '캡슐'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavItem(IconData outlineIcon, IconData filledIcon, int index, String label) {
     bool isSelected = _selectedIndex == index;
-    Color iconColor = isSelected ? const Color(0xFF4F46E5) : const Color(0xFF9CA3AF);
     return GestureDetector(
       onTap: () => _onItemTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: iconColor),
-          const SizedBox(height: 4),
-        ],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? const LinearGradient(
+            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+          )
+              : null,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? filledIcon : outlineIcon,
+              color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+              size: 24,
+            ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
