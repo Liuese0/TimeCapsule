@@ -18,6 +18,8 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _personalMemoController = TextEditingController();
+  final TextEditingController _commonLetterController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   DateTime? _openDate;
@@ -26,6 +28,9 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
   List<Map<String, dynamic>> _friendsList = [];
   bool _isLoading = false;
   bool _isFriendsLoading = true;
+  bool _hasPersonalMemo = false;
+  bool _hasCommonLetter = false;
+  bool _isPersonalMemoPrivate = true; // 개인 메모 비공개 여부
 
   AnimationController? _fadeAnimationController;
   Animation<double>? _fadeAnimation;
@@ -85,6 +90,8 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     _nameController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
+    _personalMemoController.dispose();
+    _commonLetterController.dispose();
     _fadeAnimationController?.dispose();
     _slideAnimationController?.dispose();
     super.dispose();
@@ -226,6 +233,36 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
 
     final selectedFriendEmails = _selectedFriends.map((friend) => friend['email'] as String).toList();
 
+    // 개인 메모와 공통 편지 데이터 준비
+    Map<String, dynamic> personalMemoData = {};
+    Map<String, dynamic> commonLetterData = {};
+
+    if (_hasPersonalMemo && _personalMemoController.text.trim().isNotEmpty) {
+      personalMemoData = {
+        'content': _personalMemoController.text.trim(),
+        'isPrivate': _isPersonalMemoPrivate,
+        'authorId': currentUser.uid,
+        'createdAt': DateTime.now(),
+      };
+    }
+
+    if (_hasCommonLetter && _commonLetterController.text.trim().isNotEmpty) {
+      // 사용자 이름 가져오기
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      final userName = userDoc.data()?['name'] ?? '익명';
+
+      commonLetterData = {
+        'content': _commonLetterController.text.trim(),
+        'authorId': currentUser.uid,
+        'authorName': userName,
+        'createdAt': DateTime.now(),
+      };
+    }
+
     final capsule = {
       'name': _nameController.text.trim(),
       'description': _descriptionController.text.trim(),
@@ -237,6 +274,8 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
       'status': 'draft',
       'files': _attachedFiles,
       'pendingOwners': selectedFriendEmails,
+      'personalMemo': personalMemoData,
+      'commonLetters': commonLetterData.isNotEmpty ? [commonLetterData] : [],
     };
 
     try {
@@ -712,6 +751,250 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     );
   }
 
+  Widget _buildPersonalMemoSection() {
+    return _buildSectionCard(
+      title: '개인 메모',
+      icon: Icons.edit_note,
+      color: const Color(0xFF8B5CF6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                value: _hasPersonalMemo,
+                onChanged: (value) {
+                  setState(() {
+                    _hasPersonalMemo = value ?? false;
+                    if (!_hasPersonalMemo) {
+                      _personalMemoController.clear();
+                    }
+                  });
+                },
+                activeColor: const Color(0xFF8B5CF6),
+              ),
+              const Expanded(
+                child: Text(
+                  '개인 메모 작성하기',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_hasPersonalMemo) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: const Color(0xFF8B5CF6),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      '개인 메모는 나만의 특별한 추억이나 감정을 담을 수 있습니다.',
+                      style: TextStyle(
+                        color: Color(0xFFD1D5DB),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _personalMemoController,
+              label: '개인 메모',
+              hint: '미래의 나에게 전하고 싶은 메시지를 작성하세요...',
+              maxLines: 5,
+              maxLength: 1000,
+              validator: (value) => null, // 선택사항이므로 검증 없음
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F2937),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF4B5563),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _isPersonalMemoPrivate ? Icons.lock : Icons.lock_open,
+                    color: _isPersonalMemoPrivate ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isPersonalMemoPrivate ? '비공개 메모' : '공개 메모',
+                          style: TextStyle(
+                            color: _isPersonalMemoPrivate ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          _isPersonalMemoPrivate
+                              ? '나만 볼 수 있습니다'
+                              : '공동 소유주도 볼 수 있습니다',
+                          style: const TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    value: !_isPersonalMemoPrivate, // 스위치는 공개 여부를 나타냄
+                    onChanged: (value) {
+                      setState(() {
+                        _isPersonalMemoPrivate = !value;
+                      });
+                    },
+                    activeColor: const Color(0xFF10B981),
+                    inactiveThumbColor: const Color(0xFFEF4444),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommonLetterSection() {
+    return _buildSectionCard(
+      title: '공통 편지',
+      icon: Icons.mail_outline,
+      color: const Color(0xFF10B981),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                value: _hasCommonLetter,
+                onChanged: (value) {
+                  setState(() {
+                    _hasCommonLetter = value ?? false;
+                    if (!_hasCommonLetter) {
+                      _commonLetterController.clear();
+                    }
+                  });
+                },
+                activeColor: const Color(0xFF10B981),
+              ),
+              const Expanded(
+                child: Text(
+                  '공통 편지 작성하기',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_hasCommonLetter) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: const Color(0xFF10B981),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      '공통 편지는 모든 공동 소유주가 함께 보는 메시지입니다.',
+                      style: TextStyle(
+                        color: Color(0xFFD1D5DB),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _commonLetterController,
+              label: '공통 편지',
+              hint: '모두에게 전하고 싶은 메시지를 작성하세요...',
+              maxLines: 5,
+              maxLength: 1000,
+              validator: (value) => null, // 선택사항이므로 검증 없음
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.group,
+                    color: const Color(0xFF10B981),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      '캡슐이 열리면 모든 공동 소유주가 이 편지를 볼 수 있으며, 추가로 더 많은 편지를 작성할 수 있습니다.',
+                      style: TextStyle(
+                        color: Color(0xFF10B981),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1062,6 +1345,12 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                       ),
                     ),
                   ),
+
+                  // 개인 메모 섹션 추가
+                  _buildPersonalMemoSection(),
+
+                  // 공통 편지 섹션 추가
+                  _buildCommonLetterSection(),
 
                   // 공동 소유주
                   _buildSectionCard(
