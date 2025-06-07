@@ -518,6 +518,9 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     if (_tabController == null) {
       return const Scaffold(
         backgroundColor: Color(0xFF0F172A),
@@ -533,7 +536,7 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 120,
+              expandedHeight: isSmallScreen ? 100 : 120,
               floating: false,
               pinned: true,
               backgroundColor: const Color(0xFF0F172A),
@@ -549,41 +552,55 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                       end: Alignment.bottomCenter,
                     ),
                   ),
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                  padding: EdgeInsets.fromLTRB(
+                      isSmallScreen ? 12 : 16,
+                      isSmallScreen ? 45 : 60,
+                      isSmallScreen ? 12 : 16,
+                      isSmallScreen ? 8 : 16
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            '친구 관리 👥',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color(0xFF9CA3AF),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                            ).createShader(bounds),
-                            child: const Text(
-                              '친구',
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '친구 관리 👥',
                               style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontSize: isSmallScreen ? 12 : 16,
+                                color: const Color(0xFF9CA3AF),
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(height: isSmallScreen ? 1 : 4),
+                            Flexible(
+                              child: ShaderMask(
+                                shaderCallback: (bounds) => const LinearGradient(
+                                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                ).createShader(bounds),
+                                child: Text(
+                                  '친구',
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 20 : 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      SizedBox(width: isSmallScreen ? 8 : 12),
                       if (_friendRequests.isNotEmpty)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: isSmallScreen ? 8 : 12,
+                              vertical: isSmallScreen ? 3 : 6
+                          ),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
@@ -600,13 +617,15 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.notifications_active, color: Colors.white, size: 16),
-                              const SizedBox(width: 4),
+                              Icon(Icons.notifications_active,
+                                  color: Colors.white,
+                                  size: isSmallScreen ? 12 : 16),
+                              SizedBox(width: isSmallScreen ? 2 : 4),
                               Text(
                                 '${_friendRequests.length}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: isSmallScreen ? 10 : 12,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -621,7 +640,10 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
             SliverToBoxAdapter(
               child: Container(
                 color: const Color(0xFF0F172A),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16,
+                    vertical: isSmallScreen ? 4 : 8
+                ),
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF374151),
@@ -646,100 +668,113 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
+                    padding: EdgeInsets.all(isSmallScreen ? 2 : 4),
                     tabs: [
                       Tab(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.group, size: 16),
-                            const SizedBox(height: 2),
-                            Text('친구', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600)),
-                            if (_friends.isNotEmpty)
-                              Container(
-                                margin: const EdgeInsets.only(top: 1),
-                                padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4F46E5),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  '${_friends.length}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 7,
-                                    fontWeight: FontWeight.bold,
+                        child: Container(
+                          height: isSmallScreen ? 50 : 60,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.group, size: isSmallScreen ? 12 : 16),
+                              SizedBox(height: isSmallScreen ? 1 : 2),
+                              Text('친구', style: TextStyle(fontSize: isSmallScreen ? 8 : 9, fontWeight: FontWeight.w600)),
+                              if (_friends.isNotEmpty)
+                                Container(
+                                  margin: EdgeInsets.only(top: isSmallScreen ? 0 : 1),
+                                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF4F46E5),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    '${_friends.length}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isSmallScreen ? 6 : 7,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const Tab(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.search, size: 16),
-                            SizedBox(height: 2),
-                            Text('검색', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600)),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Tab(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.inbox, size: 16),
-                            const SizedBox(height: 2),
-                            Text('요청', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600)),
-                            if (_friendRequests.isNotEmpty)
-                              Container(
-                                margin: const EdgeInsets.only(top: 1),
-                                padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEF4444),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  '${_friendRequests.length}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 7,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                          ],
+                        child: Container(
+                          height: isSmallScreen ? 50 : 60,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.search, size: isSmallScreen ? 12 : 16),
+                              SizedBox(height: isSmallScreen ? 1 : 2),
+                              Text('검색', style: TextStyle(fontSize: isSmallScreen ? 8 : 9, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
                         ),
                       ),
                       Tab(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.send, size: 16),
-                            const SizedBox(height: 2),
-                            Text('발송', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600)),
-                            if (_sentRequests.isNotEmpty)
-                              Container(
-                                margin: const EdgeInsets.only(top: 1),
-                                padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF59E0B),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  '${_sentRequests.length}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 7,
-                                    fontWeight: FontWeight.bold,
+                        child: Container(
+                          height: isSmallScreen ? 50 : 60,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.inbox, size: isSmallScreen ? 12 : 16),
+                              SizedBox(height: isSmallScreen ? 1 : 2),
+                              Text('요청', style: TextStyle(fontSize: isSmallScreen ? 8 : 9, fontWeight: FontWeight.w600)),
+                              if (_friendRequests.isNotEmpty)
+                                Container(
+                                  margin: EdgeInsets.only(top: isSmallScreen ? 0 : 1),
+                                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEF4444),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    '${_friendRequests.length}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isSmallScreen ? 6 : 7,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: Container(
+                          height: isSmallScreen ? 50 : 60,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.send, size: isSmallScreen ? 12 : 16),
+                              SizedBox(height: isSmallScreen ? 1 : 2),
+                              Text('발송', style: TextStyle(fontSize: isSmallScreen ? 8 : 9, fontWeight: FontWeight.w600)),
+                              if (_sentRequests.isNotEmpty)
+                                Container(
+                                  margin: EdgeInsets.only(top: isSmallScreen ? 0 : 1),
+                                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF59E0B),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    '${_sentRequests.length}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isSmallScreen ? 6 : 7,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -763,14 +798,17 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
   }
 
   Widget _buildFriendsTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         children: [
           // 친구 수 통계
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -792,42 +830,44 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                     ),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(Icons.group, color: Colors.white, size: 24),
+                  child: Icon(Icons.group, color: Colors.white, size: isSmallScreen ? 18 : 24),
                 ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '총 친구 수',
-                      style: TextStyle(
-                        color: Color(0xFF9CA3AF),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                SizedBox(width: isSmallScreen ? 12 : 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '총 친구 수',
+                        style: TextStyle(
+                          color: const Color(0xFF9CA3AF),
+                          fontSize: isSmallScreen ? 12 : 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${_friends.length}명',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: isSmallScreen ? 2 : 4),
+                      Text(
+                        '${_friends.length}명',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isSmallScreen ? 18 : 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmallScreen ? 12 : 20),
 
           // 친구 목록
           _friends.isEmpty
@@ -843,8 +883,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
             itemBuilder: (context, index) {
               final friend = _friends[index];
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+                padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -866,8 +906,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                 child: Row(
                   children: [
                     Container(
-                      width: 50,
-                      height: 50,
+                      width: isSmallScreen ? 40 : 50,
+                      height: isSmallScreen ? 40 : 50,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -877,34 +917,38 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                       child: Center(
                         child: Text(
                           (friend['name'] ?? 'U')[0].toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: isSmallScreen ? 14 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: isSmallScreen ? 10 : 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             friend['name'] ?? '이름 없음',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: isSmallScreen ? 14 : 16,
                               fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: isSmallScreen ? 2 : 4),
                           Text(
                             friend['email'] ?? '이메일 없음',
-                            style: const TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 12,
+                            style: TextStyle(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: isSmallScreen ? 10 : 12,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -915,7 +959,9 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: PopupMenuButton(
-                        icon: const Icon(Icons.more_vert, color: Color(0xFF9CA3AF)),
+                        icon: Icon(Icons.more_vert,
+                            color: const Color(0xFF9CA3AF),
+                            size: isSmallScreen ? 16 : 20),
                         color: const Color(0xFF2D3748),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         itemBuilder: (context) => [
@@ -924,15 +970,19 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                             child: Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(6),
+                                  padding: EdgeInsets.all(isSmallScreen ? 4 : 6),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFEF4444).withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(Icons.person_remove, color: Color(0xFFEF4444), size: 16),
+                                  child: Icon(Icons.person_remove,
+                                      color: const Color(0xFFEF4444),
+                                      size: isSmallScreen ? 12 : 16),
                                 ),
-                                const SizedBox(width: 8),
-                                const Text('친구 삭제', style: TextStyle(color: Colors.white)),
+                                SizedBox(width: isSmallScreen ? 6 : 8),
+                                Text('친구 삭제',
+                                    style: TextStyle(color: Colors.white,
+                                        fontSize: isSmallScreen ? 12 : 14)),
                               ],
                             ),
                             onTap: () => _removeFriend(friend['uid'] ?? ''),
@@ -951,8 +1001,11 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
   }
 
   Widget _buildSearchTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         children: [
           // 검색창
@@ -977,13 +1030,13 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
             ),
             child: TextField(
               controller: _searchController,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white, fontSize: isSmallScreen ? 13 : 16),
               decoration: InputDecoration(
                 hintText: '이름 또는 이메일로 검색',
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                hintStyle: TextStyle(color: const Color(0xFF9CA3AF), fontSize: isSmallScreen ? 13 : 16),
                 prefixIcon: Container(
-                  padding: const EdgeInsets.all(12),
-                  child: const Icon(Icons.search, color: Color(0xFF4F46E5)),
+                  padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+                  child: Icon(Icons.search, color: const Color(0xFF4F46E5), size: isSmallScreen ? 18 : 24),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -991,28 +1044,31 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                 ),
                 filled: true,
                 fillColor: Colors.transparent,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 14 : 20,
+                    vertical: isSmallScreen ? 12 : 16
+                ),
               ),
               onChanged: _searchUsers,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmallScreen ? 12 : 20),
 
           // 검색 결과
           _isSearching
               ? Container(
-            padding: const EdgeInsets.all(40),
+            padding: EdgeInsets.all(isSmallScreen ? 24 : 40),
             decoration: BoxDecoration(
               color: const Color(0xFF374151),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Column(
+            child: Column(
               children: [
-                CircularProgressIndicator(color: Color(0xFF4F46E5)),
-                SizedBox(height: 16),
+                CircularProgressIndicator(color: const Color(0xFF4F46E5)),
+                SizedBox(height: isSmallScreen ? 10 : 16),
                 Text(
                   '검색 중...',
-                  style: TextStyle(color: Color(0xFFD1D5DB), fontSize: 16),
+                  style: TextStyle(color: const Color(0xFFD1D5DB), fontSize: isSmallScreen ? 13 : 16),
                 ),
               ],
             ),
@@ -1033,8 +1089,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
               final hasSentRequest = _sentRequests.any((request) => request['receiverId'] == user['uid']);
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+                padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -1056,8 +1112,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                 child: Row(
                   children: [
                     Container(
-                      width: 50,
-                      height: 50,
+                      width: isSmallScreen ? 40 : 50,
+                      height: isSmallScreen ? 40 : 50,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1067,58 +1123,65 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                       child: Center(
                         child: Text(
                           (user['name'] ?? 'U')[0].toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: isSmallScreen ? 14 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: isSmallScreen ? 10 : 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             user['name'] ?? '이름 없음',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: isSmallScreen ? 14 : 16,
                               fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: isSmallScreen ? 2 : 4),
                           Text(
                             user['email'] ?? '이메일 없음',
-                            style: const TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 12,
+                            style: TextStyle(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: isSmallScreen ? 10 : 12,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
                     isFriend
                         ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 8 : 12,
+                          vertical: isSmallScreen ? 4 : 6
+                      ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF10B981), Color(0xFF059669)],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.check, color: Colors.white, size: 14),
-                          SizedBox(width: 4),
+                          Icon(Icons.check, color: Colors.white, size: isSmallScreen ? 12 : 14),
+                          SizedBox(width: isSmallScreen ? 2 : 4),
                           Text(
                             '친구',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                              fontSize: isSmallScreen ? 10 : 12,
                             ),
                           ),
                         ],
@@ -1126,23 +1189,26 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                     )
                         : hasSentRequest
                         ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 8 : 12,
+                          vertical: isSmallScreen ? 4 : 6
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF9CA3AF).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFF9CA3AF)),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.schedule, color: Color(0xFF9CA3AF), size: 14),
-                          SizedBox(width: 4),
+                          Icon(Icons.schedule, color: const Color(0xFF9CA3AF), size: isSmallScreen ? 12 : 14),
+                          SizedBox(width: isSmallScreen ? 2 : 4),
                           Text(
                             '요청됨',
                             style: TextStyle(
-                              color: Color(0xFF9CA3AF),
+                              color: const Color(0xFF9CA3AF),
                               fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                              fontSize: isSmallScreen ? 10 : 12,
                             ),
                           ),
                         ],
@@ -1152,7 +1218,10 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                       onPressed: () => _sendFriendRequest(user['uid'] ?? ''),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 10 : 16,
+                            vertical: isSmallScreen ? 6 : 8
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -1167,17 +1236,20 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        child: const Row(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 8 : 12,
+                            vertical: isSmallScreen ? 4 : 6
+                        ),
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.person_add, color: Colors.white, size: 14),
-                            SizedBox(width: 4),
+                            Icon(Icons.person_add, color: Colors.white, size: isSmallScreen ? 12 : 14),
+                            SizedBox(width: isSmallScreen ? 2 : 4),
                             Text(
                               '요청',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: isSmallScreen ? 10 : 12,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1196,15 +1268,18 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
   }
 
   Widget _buildRequestsTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         children: [
           // 요청 수 표시
           if (_friendRequests.isNotEmpty)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -1229,43 +1304,45 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.notifications_active, color: Colors.white, size: 24),
+                    child: Icon(Icons.notifications_active, color: Colors.white, size: isSmallScreen ? 18 : 24),
                   ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '새로운 친구 요청',
-                        style: TextStyle(
-                          color: Color(0xFFD1D5DB),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                  SizedBox(width: isSmallScreen ? 12 : 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '새로운 친구 요청',
+                          style: TextStyle(
+                            color: const Color(0xFFD1D5DB),
+                            fontSize: isSmallScreen ? 12 : 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${_friendRequests.length}개',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                        SizedBox(height: isSmallScreen ? 2 : 4),
+                        Text(
+                          '${_friendRequests.length}개',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isSmallScreen ? 18 : 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-          if (_friendRequests.isNotEmpty) const SizedBox(height: 20),
+          if (_friendRequests.isNotEmpty) SizedBox(height: isSmallScreen ? 12 : 20),
 
           // 요청 목록
           _friendRequests.isEmpty
@@ -1281,8 +1358,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
             itemBuilder: (context, index) {
               final request = _friendRequests[index];
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(20),
+                margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+                padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -1306,8 +1383,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                     Row(
                       children: [
                         Container(
-                          width: 50,
-                          height: 50,
+                          width: isSmallScreen ? 40 : 50,
+                          height: isSmallScreen ? 40 : 50,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1317,47 +1394,54 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                           child: Center(
                             child: Text(
                               request['senderName'][0].toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: isSmallScreen ? 14 : 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: isSmallScreen ? 10 : 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 request['senderName'],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: isSmallScreen ? 14 : 16,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: isSmallScreen ? 2 : 4),
                               Text(
                                 request['senderEmail'],
-                                style: const TextStyle(
-                                  color: Color(0xFF9CA3AF),
-                                  fontSize: 12,
+                                style: TextStyle(
+                                  color: const Color(0xFF9CA3AF),
+                                  fontSize: isSmallScreen ? 10 : 12,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: isSmallScreen ? 2 : 4),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: isSmallScreen ? 6 : 8,
+                                    vertical: isSmallScreen ? 2 : 4
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF59E0B).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   '친구 요청',
                                   style: TextStyle(
-                                    color: Color(0xFFF59E0B),
-                                    fontSize: 10,
+                                    color: const Color(0xFFF59E0B),
+                                    fontSize: isSmallScreen ? 8 : 10,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1367,7 +1451,7 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: isSmallScreen ? 10 : 16),
                     Row(
                       children: [
                         Expanded(
@@ -1378,7 +1462,7 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -1393,17 +1477,17 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: const Row(
+                              padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.check, color: Colors.white, size: 16),
-                                  SizedBox(width: 6),
+                                  Icon(Icons.check, color: Colors.white, size: isSmallScreen ? 14 : 16),
+                                  SizedBox(width: isSmallScreen ? 4 : 6),
                                   Text(
                                     '수락',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 14,
+                                      fontSize: isSmallScreen ? 12 : 14,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -1412,29 +1496,29 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: isSmallScreen ? 8 : 12),
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () => _rejectFriendRequest(request['requestId']),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF374151),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: const BorderSide(color: Color(0xFF6B7280)),
                               ),
                               elevation: 0,
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.close, color: Color(0xFFEF4444), size: 16),
-                                SizedBox(width: 6),
+                                Icon(Icons.close, color: const Color(0xFFEF4444), size: isSmallScreen ? 14 : 16),
+                                SizedBox(width: isSmallScreen ? 4 : 6),
                                 Text(
                                   '거절',
                                   style: TextStyle(
-                                    color: Color(0xFFEF4444),
-                                    fontSize: 14,
+                                    color: const Color(0xFFEF4444),
+                                    fontSize: isSmallScreen ? 12 : 14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1455,15 +1539,18 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
   }
 
   Widget _buildSentRequestsTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         children: [
           // 보낸 요청 수 표시
           if (_sentRequests.isNotEmpty)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -1488,43 +1575,45 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.send, color: Colors.white, size: 24),
+                    child: Icon(Icons.send, color: Colors.white, size: isSmallScreen ? 18 : 24),
                   ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '보낸 친구 요청',
-                        style: TextStyle(
-                          color: Color(0xFFD1D5DB),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                  SizedBox(width: isSmallScreen ? 12 : 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '보낸 친구 요청',
+                          style: TextStyle(
+                            color: const Color(0xFFD1D5DB),
+                            fontSize: isSmallScreen ? 12 : 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${_sentRequests.length}개',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                        SizedBox(height: isSmallScreen ? 2 : 4),
+                        Text(
+                          '${_sentRequests.length}개',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isSmallScreen ? 18 : 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-          if (_sentRequests.isNotEmpty) const SizedBox(height: 20),
+          if (_sentRequests.isNotEmpty) SizedBox(height: isSmallScreen ? 12 : 20),
 
           // 보낸 요청 목록
           _sentRequests.isEmpty
@@ -1540,8 +1629,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
             itemBuilder: (context, index) {
               final request = _sentRequests[index];
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(20),
+                margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+                padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -1565,8 +1654,8 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                     Row(
                       children: [
                         Container(
-                          width: 50,
-                          height: 50,
+                          width: isSmallScreen ? 40 : 50,
+                          height: isSmallScreen ? 40 : 50,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1576,47 +1665,54 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                           child: Center(
                             child: Text(
                               request['receiverName'][0].toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: isSmallScreen ? 14 : 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: isSmallScreen ? 10 : 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 request['receiverName'],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: isSmallScreen ? 14 : 16,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: isSmallScreen ? 2 : 4),
                               Text(
                                 request['receiverEmail'],
-                                style: const TextStyle(
-                                  color: Color(0xFF9CA3AF),
-                                  fontSize: 12,
+                                style: TextStyle(
+                                  color: const Color(0xFF9CA3AF),
+                                  fontSize: isSmallScreen ? 10 : 12,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: isSmallScreen ? 2 : 4),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: isSmallScreen ? 6 : 8,
+                                    vertical: isSmallScreen ? 2 : 4
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF59E0B).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   '응답 대기중',
                                   style: TextStyle(
-                                    color: Color(0xFFF59E0B),
-                                    fontSize: 10,
+                                    color: const Color(0xFFF59E0B),
+                                    fontSize: isSmallScreen ? 8 : 10,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1626,30 +1722,30 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: isSmallScreen ? 10 : 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () => _cancelSentRequest(request['requestId']),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF374151),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: const BorderSide(color: Color(0xFFEF4444)),
                           ),
                           elevation: 0,
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.cancel, color: Color(0xFFEF4444), size: 16),
-                            SizedBox(width: 6),
+                            Icon(Icons.cancel, color: const Color(0xFFEF4444), size: isSmallScreen ? 14 : 16),
+                            SizedBox(width: isSmallScreen ? 4 : 6),
                             Text(
                               '요청 취소',
                               style: TextStyle(
-                                color: Color(0xFFEF4444),
-                                fontSize: 14,
+                                color: const Color(0xFFEF4444),
+                                fontSize: isSmallScreen ? 12 : 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1668,9 +1764,12 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
   }
 
   Widget _buildEmptyState(IconData icon, String title, String subtitle) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -1697,33 +1796,33 @@ class _FriendPageScreenState extends State<FriendPageScreen> with SingleTickerPr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isSmallScreen ? 12 : 20),
             decoration: BoxDecoration(
               color: const Color(0xFF4B5563),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               icon,
-              size: 48,
+              size: isSmallScreen ? 32 : 48,
               color: const Color(0xFF9CA3AF),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 10 : 16),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: isSmallScreen ? 14 : 18,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: isSmallScreen ? 4 : 8),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Color(0xFF9CA3AF),
-              fontSize: 14,
+            style: TextStyle(
+              color: const Color(0xFF9CA3AF),
+              fontSize: isSmallScreen ? 11 : 14,
             ),
             textAlign: TextAlign.center,
           ),

@@ -197,6 +197,8 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
 
   // 프로필 편집 다이얼로그
   Future<void> _showEditProfileDialog() async {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
     final nameController = TextEditingController(text: _userData?['name'] ?? '');
 
     final result = await showDialog<Map<String, String>>(
@@ -209,25 +211,28 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.edit,
                 color: Colors.white,
-                size: 20,
+                size: isSmallScreen ? 16 : 20,
               ),
             ),
-            const SizedBox(width: 12),
-            const Text(
-              '프로필 편집',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            SizedBox(width: isSmallScreen ? 8 : 12),
+            Expanded(
+              child: Text(
+                '프로필 편집',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 14 : 16,
+                ),
               ),
             ),
           ],
@@ -245,15 +250,16 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
               ),
               child: TextField(
                 controller: nameController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: isSmallScreen ? 13 : 16),
                 decoration: InputDecoration(
                   labelText: '이름',
-                  labelStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                  labelStyle: TextStyle(color: const Color(0xFF9CA3AF), fontSize: isSmallScreen ? 12 : 14),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                  prefixIcon: const Icon(
+                  contentPadding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+                  prefixIcon: Icon(
                     Icons.person_outline,
-                    color: Color(0xFF9CA3AF),
+                    color: const Color(0xFF9CA3AF),
+                    size: isSmallScreen ? 18 : 24,
                   ),
                 ),
               ),
@@ -264,11 +270,17 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 12 : 20,
+                  vertical: isSmallScreen ? 6 : 10
+              ),
             ),
-            child: const Text(
+            child: Text(
               '취소',
-              style: TextStyle(color: Color(0xFF9CA3AF)),
+              style: TextStyle(
+                  color: const Color(0xFF9CA3AF),
+                  fontSize: isSmallScreen ? 12 : 14
+              ),
             ),
           ),
           ElevatedButton(
@@ -279,17 +291,21 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4F46E5),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 12 : 20,
+                  vertical: isSmallScreen ? 6 : 10
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
             ),
-            child: const Text(
+            child: Text(
               '저장',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
               ),
             ),
           ),
@@ -342,6 +358,8 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
 
   // 비밀번호 변경 다이얼로그
   Future<void> _showChangePasswordDialog() async {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
@@ -356,25 +374,28 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.lock_outline,
                 color: Colors.white,
-                size: 20,
+                size: isSmallScreen ? 16 : 20,
               ),
             ),
-            const SizedBox(width: 12),
-            const Text(
-              '비밀번호 변경',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            SizedBox(width: isSmallScreen ? 8 : 12),
+            Expanded(
+              child: Text(
+                '비밀번호 변경',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 14 : 16,
+                ),
               ),
             ),
           ],
@@ -383,18 +404,21 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildPasswordField(currentPasswordController, '현재 비밀번호', Icons.lock_outline),
-            const SizedBox(height: 16),
+            SizedBox(height: isSmallScreen ? 12 : 16),
             _buildPasswordField(newPasswordController, '새 비밀번호', Icons.lock_reset),
-            const SizedBox(height: 16),
+            SizedBox(height: isSmallScreen ? 12 : 16),
             _buildPasswordField(confirmPasswordController, '새 비밀번호 확인', Icons.lock_open),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               '취소',
-              style: TextStyle(color: Color(0xFF9CA3AF)),
+              style: TextStyle(
+                  color: const Color(0xFF9CA3AF),
+                  fontSize: isSmallScreen ? 12 : 14
+              ),
             ),
           ),
           ElevatedButton(
@@ -417,11 +441,12 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
               ),
               elevation: 0,
             ),
-            child: const Text(
+            child: Text(
               '변경',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 12 : 14,
               ),
             ),
           ),
@@ -435,6 +460,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildPasswordField(TextEditingController controller, String label, IconData icon) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1F2937),
@@ -445,15 +473,16 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.white, fontSize: isSmallScreen ? 13 : 16),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+          labelStyle: TextStyle(color: const Color(0xFF9CA3AF), fontSize: isSmallScreen ? 12 : 14),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          contentPadding: EdgeInsets.all(isSmallScreen ? 12 : 16),
           prefixIcon: Icon(
             icon,
             color: const Color(0xFF9CA3AF),
+            size: isSmallScreen ? 18 : 24,
           ),
         ),
         obscureText: true,
@@ -699,6 +728,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFF0F172A),
@@ -717,7 +749,7 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 150,
+                expandedHeight: isSmallScreen ? 130 : 150,
                 floating: false,
                 pinned: true,
                 backgroundColor: const Color(0xFF0F172A),
@@ -733,19 +765,24 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                         end: Alignment.bottomCenter,
                       ),
                     ),
-                    padding: const EdgeInsets.fromLTRB(20, 80, 20, 20),
+                    padding: EdgeInsets.fromLTRB(
+                        isSmallScreen ? 12 : 16,
+                        isSmallScreen ? 60 : 80,
+                        isSmallScreen ? 12 : 16,
+                        isSmallScreen ? 12 : 20
+                    ),
                     child: Row(
                       children: [
                         Container(
-                          width: 80,
-                          height: 80,
+                          width: isSmallScreen ? 60 : 80,
+                          height: isSmallScreen ? 60 : 80,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(isSmallScreen ? 18 : 24),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFF4F46E5).withOpacity(0.3),
@@ -757,15 +794,15 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                           child: Center(
                             child: Text(
                               (_userData?['name'] ?? 'U')[0].toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 32,
+                              style: TextStyle(
+                                fontSize: isSmallScreen ? 24 : 32,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: isSmallScreen ? 12 : 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -777,8 +814,8 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                                 ).createShader(bounds),
                                 child: Text(
                                   _userData?['name'] ?? 'Unknown',
-                                  style: const TextStyle(
-                                    fontSize: 24,
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 18 : 24,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
@@ -786,9 +823,12 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: isSmallScreen ? 4 : 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: isSmallScreen ? 8 : 12,
+                                    vertical: isSmallScreen ? 3 : 6
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF374151),
                                   borderRadius: BorderRadius.circular(12),
@@ -796,18 +836,18 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.email_outlined,
-                                      size: 16,
-                                      color: Color(0xFF9CA3AF),
+                                      size: isSmallScreen ? 12 : 16,
+                                      color: const Color(0xFF9CA3AF),
                                     ),
-                                    const SizedBox(width: 6),
+                                    SizedBox(width: isSmallScreen ? 3 : 6),
                                     Flexible(
                                       child: Text(
                                         _userData?['email'] ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFFD1D5DB),
+                                        style: TextStyle(
+                                          fontSize: isSmallScreen ? 10 : 12,
+                                          color: const Color(0xFFD1D5DB),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -832,7 +872,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                             ],
                           ),
                           child: PopupMenuButton(
-                            icon: const Icon(Icons.more_vert, color: Colors.white),
+                            icon: Icon(Icons.more_vert,
+                                color: Colors.white,
+                                size: isSmallScreen ? 18 : 24),
                             color: const Color(0xFF2D3748),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -876,7 +918,10 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                   Container(
                     color: const Color(0xFF0F172A),
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      margin: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 12 : 16,
+                          vertical: isSmallScreen ? 4 : 8
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF374151),
                         borderRadius: BorderRadius.circular(16),
@@ -892,14 +937,14 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                         ),
                         indicatorSize: TabBarIndicatorSize.tab,
                         dividerColor: Colors.transparent,
-                        tabs: const [
+                        tabs: [
                           Tab(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.analytics_outlined, size: 18),
-                                SizedBox(width: 6),
-                                Text('통계', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                Icon(Icons.analytics_outlined, size: isSmallScreen ? 14 : 18),
+                                SizedBox(width: isSmallScreen ? 3 : 6),
+                                Text('통계', style: TextStyle(fontSize: isSmallScreen ? 11 : 14, fontWeight: FontWeight.w600)),
                               ],
                             ),
                           ),
@@ -907,9 +952,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.archive_outlined, size: 18),
-                                SizedBox(width: 6),
-                                Text('내 캡슐', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                Icon(Icons.archive_outlined, size: isSmallScreen ? 14 : 18),
+                                SizedBox(width: isSmallScreen ? 3 : 6),
+                                Text('내 캡슐', style: TextStyle(fontSize: isSmallScreen ? 11 : 14, fontWeight: FontWeight.w600)),
                               ],
                             ),
                           ),
@@ -917,9 +962,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.favorite_outline, size: 18),
-                                SizedBox(width: 6),
-                                Text('좋아요', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                Icon(Icons.favorite_outline, size: isSmallScreen ? 14 : 18),
+                                SizedBox(width: isSmallScreen ? 3 : 6),
+                                Text('좋아요', style: TextStyle(fontSize: isSmallScreen ? 11 : 14, fontWeight: FontWeight.w600)),
                               ],
                             ),
                           ),
@@ -951,14 +996,17 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
       Color color,
       VoidCallback onTap,
       ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return PopupMenuItem(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 2 : 4),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
@@ -966,15 +1014,16 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
               child: Icon(
                 icon,
                 color: color,
-                size: 16,
+                size: isSmallScreen ? 12 : 16,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: isSmallScreen ? 8 : 12),
             Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
+                fontSize: isSmallScreen ? 12 : 14,
               ),
             ),
           ],
@@ -984,6 +1033,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildStatsTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     final now = DateTime.now();
     final totalCapsules = _userCapsules.length;
     final draftCapsules = _userCapsules.where((c) => c['status'] == 'draft').length;
@@ -994,37 +1046,37 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
     }).length;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '📊 캡슐 통계',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: isSmallScreen ? 16 : 20,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isSmallScreen ? 12 : 20),
           Row(
             children: [
               _buildStatCard('전체 캡슐', totalCapsules.toString(), Icons.archive_outlined, const Color(0xFF4F46E5)),
-              const SizedBox(width: 12),
+              SizedBox(width: isSmallScreen ? 8 : 12),
               _buildStatCard('좋아요한 캡슐', _likedCapsules.length.toString(), Icons.favorite_outline, const Color(0xFFEC4899)),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 8 : 12),
           Row(
             children: [
               _buildStatCard('임시저장', draftCapsules.toString(), Icons.edit_outlined, const Color(0xFFF59E0B)),
-              const SizedBox(width: 12),
+              SizedBox(width: isSmallScreen ? 8 : 12),
               _buildStatCard('묻힌 캡슐', submittedCapsules.toString(), Icons.lock_outline, const Color(0xFFEF4444)),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 8 : 12),
           _buildFullWidthStatCard('열린 캡슐', openedCapsules.toString(), Icons.celebration_outlined, const Color(0xFF10B981)),
-          const SizedBox(height: 24),
+          SizedBox(height: isSmallScreen ? 16 : 24),
           _buildQuickActionsCard(),
         ],
       ),
@@ -1032,9 +1084,12 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildStatCard(String title, String count, IconData icon, Color color) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmallScreen ? 10 : 16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -1053,7 +1108,7 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
@@ -1061,14 +1116,14 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
               child: Icon(
                 icon,
                 color: color,
-                size: 20,
+                size: isSmallScreen ? 16 : 20,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isSmallScreen ? 8 : 12),
             Text(
               count,
-              style: const TextStyle(
-                fontSize: 24,
+              style: TextStyle(
+                fontSize: isSmallScreen ? 18 : 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -1076,11 +1131,13 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
             const SizedBox(height: 2),
             Text(
               title,
-              style: const TextStyle(
-                color: Color(0xFFD1D5DB),
-                fontSize: 11,
+              style: TextStyle(
+                color: const Color(0xFFD1D5DB),
+                fontSize: isSmallScreen ? 9 : 11,
                 fontWeight: FontWeight.w500,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -1089,9 +1146,12 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildFullWidthStatCard(String title, String count, IconData icon, Color color) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -1109,7 +1169,7 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
             decoration: BoxDecoration(
               color: color.withOpacity(0.2),
               borderRadius: BorderRadius.circular(16),
@@ -1117,30 +1177,32 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
             child: Icon(
               icon,
               color: color,
-              size: 24,
+              size: isSmallScreen ? 18 : 24,
             ),
           ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                count,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          SizedBox(width: isSmallScreen ? 12 : 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  count,
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 20 : 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFFD1D5DB),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: const Color(0xFFD1D5DB),
+                    fontSize: isSmallScreen ? 12 : 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -1148,9 +1210,12 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildQuickActionsCard() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -1171,31 +1236,31 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.flash_on,
                   color: Colors.white,
-                  size: 20,
+                  size: isSmallScreen ? 16 : 20,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: isSmallScreen ? 8 : 12),
+              Text(
                 '빠른 작업',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: isSmallScreen ? 14 : 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 10 : 16),
           Row(
             children: [
               Expanded(
@@ -1206,7 +1271,7 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                   _showEditProfileDialog,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: isSmallScreen ? 8 : 12),
               Expanded(
                 child: _buildQuickActionButton(
                   '비밀번호 변경',
@@ -1223,11 +1288,14 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildQuickActionButton(String title, IconData icon, Color color, VoidCallback onTap) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmallScreen ? 10 : 16),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
@@ -1240,17 +1308,19 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
             Icon(
               icon,
               color: color,
-              size: 24,
+              size: isSmallScreen ? 18 : 24,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: isSmallScreen ? 4 : 8),
             Text(
               title,
               style: TextStyle(
                 color: color,
-                fontSize: 12,
+                fontSize: isSmallScreen ? 10 : 12,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -1259,24 +1329,31 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildMyCapsulesTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Text(
-                '📦 내가 만든 캡슐',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Expanded(
+                child: Text(
+                  '📦 내가 만든 캡슐',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16 : 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 8 : 12,
+                    vertical: isSmallScreen ? 3 : 6
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1285,16 +1362,16 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                 ),
                 child: Text(
                   '${_userCapsules.length}개',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: isSmallScreen ? 10 : 12,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 10 : 16),
           _userCapsules.isEmpty
               ? _buildEmptyState(
             Icons.archive_outlined,
@@ -1315,24 +1392,31 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildLikedCapsulesTab() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Text(
-                '❤️ 좋아요한 캡슐',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Expanded(
+                child: Text(
+                  '❤️ 좋아요한 캡슐',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16 : 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 8 : 12,
+                    vertical: isSmallScreen ? 3 : 6
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
@@ -1341,16 +1425,16 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                 ),
                 child: Text(
                   '${_likedCapsules.length}개',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: isSmallScreen ? 10 : 12,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 10 : 16),
           _likedCapsules.isEmpty
               ? _buildEmptyState(
             Icons.favorite_outline,
@@ -1371,9 +1455,12 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildEmptyState(IconData icon, String title, String subtitle) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 40),
       decoration: BoxDecoration(
         color: const Color(0xFF374151),
         borderRadius: BorderRadius.circular(20),
@@ -1384,33 +1471,33 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isSmallScreen ? 12 : 20),
             decoration: BoxDecoration(
               color: const Color(0xFF4B5563),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               icon,
-              size: 48,
+              size: isSmallScreen ? 32 : 48,
               color: const Color(0xFF9CA3AF),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 10 : 16),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: isSmallScreen ? 14 : 16,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: isSmallScreen ? 4 : 8),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Color(0xFF9CA3AF),
-              fontSize: 14,
+            style: TextStyle(
+              color: const Color(0xFF9CA3AF),
+              fontSize: isSmallScreen ? 11 : 14,
             ),
             textAlign: TextAlign.center,
           ),
@@ -1420,6 +1507,9 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
   }
 
   Widget _buildCapsuleCard(Map<String, dynamic> capsule, bool isLiked) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     final now = DateTime.now();
     final openDate = capsule['openDate'] as DateTime;
     final status = capsule['status'];
@@ -1443,8 +1533,8 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -1472,8 +1562,8 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
           Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: isSmallScreen ? 32 : 40,
+                height: isSmallScreen ? 32 : 40,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1483,44 +1573,49 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                 child: Center(
                   child: Text(
                     (capsule['name'] ?? 'C')[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: isSmallScreen ? 12 : 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: isSmallScreen ? 8 : 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       capsule['name'],
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: isSmallScreen ? 14 : 16,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (isLiked && capsule['creatorName'] != null) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: isSmallScreen ? 1 : 2),
                       Text(
                         'by ${capsule['creatorName']}',
-                        style: const TextStyle(
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 12,
+                        style: TextStyle(
+                          color: const Color(0xFF9CA3AF),
+                          fontSize: isSmallScreen ? 10 : 12,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 6 : 8,
+                    vertical: isSmallScreen ? 2 : 4
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
@@ -1529,13 +1624,13 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(statusIcon, color: statusColor, size: 12),
-                    const SizedBox(width: 4),
+                    Icon(statusIcon, color: statusColor, size: isSmallScreen ? 10 : 12),
+                    SizedBox(width: isSmallScreen ? 2 : 4),
                     Text(
                       statusText,
                       style: TextStyle(
                         color: statusColor,
-                        fontSize: 10,
+                        fontSize: isSmallScreen ? 8 : 10,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1543,51 +1638,57 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                 ),
               ),
               if (isLiked) ...[
-                const SizedBox(width: 8),
-                const Icon(Icons.favorite, color: Color(0xFFEC4899), size: 16),
+                SizedBox(width: isSmallScreen ? 4 : 8),
+                Icon(Icons.favorite,
+                    color: const Color(0xFFEC4899),
+                    size: isSmallScreen ? 12 : 16),
               ],
             ],
           ),
           if (capsule['description'] != null && capsule['description'].isNotEmpty) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: isSmallScreen ? 8 : 12),
             Text(
               capsule['description'],
-              style: const TextStyle(
-                color: Color(0xFFD1D5DB),
-                fontSize: 14,
+              style: TextStyle(
+                color: const Color(0xFFD1D5DB),
+                fontSize: isSmallScreen ? 12 : 14,
               ),
-              maxLines: 2,
+              maxLines: isSmallScreen ? 1 : 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 8 : 12),
           Row(
             children: [
               Icon(
                 Icons.calendar_today_outlined,
-                size: 14,
+                size: isSmallScreen ? 12 : 14,
                 color: const Color(0xFF9CA3AF),
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: isSmallScreen ? 2 : 4),
               Text(
-                '생성: ${DateFormat('yyyy.MM.dd').format(capsule['createdDate'])}',
-                style: const TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 12,
+                '생성: ${DateFormat(isSmallScreen ? 'yy.MM.dd' : 'yyyy.MM.dd').format(capsule['createdDate'])}',
+                style: TextStyle(
+                  color: const Color(0xFF9CA3AF),
+                  fontSize: isSmallScreen ? 10 : 12,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: isSmallScreen ? 8 : 16),
               Icon(
                 Icons.schedule_outlined,
-                size: 14,
+                size: isSmallScreen ? 12 : 14,
                 color: const Color(0xFF9CA3AF),
               ),
-              const SizedBox(width: 4),
-              Text(
-                '열람: ${DateFormat('yyyy.MM.dd').format(openDate)}',
-                style: const TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 12,
+              SizedBox(width: isSmallScreen ? 2 : 4),
+              Expanded(
+                child: Text(
+                  '열람: ${DateFormat(isSmallScreen ? 'yy.MM.dd' : 'yyyy.MM.dd').format(openDate)}',
+                  style: TextStyle(
+                    color: const Color(0xFF9CA3AF),
+                    fontSize: isSmallScreen ? 10 : 12,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

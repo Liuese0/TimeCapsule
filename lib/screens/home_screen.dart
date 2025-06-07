@@ -190,12 +190,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                '알림',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              const Expanded(
+                child: Text(
+                  '알림',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -291,6 +293,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     const Text(
                                       '캡슐 초대가 도착했습니다',
@@ -458,6 +462,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildCategoryButton(String category, String label, IconData icon) {
     final isSelected = _selectedCategoryNotifier.value == category;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       child: InkWell(
@@ -467,7 +474,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 10 : 16,
+              vertical: isSmallScreen ? 6 : 10
+          ),
           decoration: BoxDecoration(
             gradient: isSelected
                 ? const LinearGradient(
@@ -490,19 +500,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
                 color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-                size: 18,
+                size: isSmallScreen ? 14 : 16,
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 14,
+              SizedBox(width: isSmallScreen ? 3 : 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    fontSize: isSmallScreen ? 11 : 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -513,9 +527,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildStatCard(String title, String count, IconData icon, Color color) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmallScreen ? 10 : 14),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -534,7 +551,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(isSmallScreen ? 5 : 7),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
@@ -542,14 +559,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Icon(
                 icon,
                 color: color,
-                size: 20,
+                size: isSmallScreen ? 14 : 18,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isSmallScreen ? 6 : 10),
             Text(
               count,
-              style: const TextStyle(
-                fontSize: 24,
+              style: TextStyle(
+                fontSize: isSmallScreen ? 18 : 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -557,11 +574,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             const SizedBox(height: 2),
             Text(
               title,
-              style: const TextStyle(
-                color: Color(0xFFD1D5DB),
-                fontSize: 11,
+              style: TextStyle(
+                color: const Color(0xFFD1D5DB),
+                fontSize: isSmallScreen ? 9 : 10,
                 fontWeight: FontWeight.w500,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -573,6 +592,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final status = capsule['status'];
     final openDate = capsule['openDate'] as DateTime;
     final createdDate = capsule['createdDate'] as DateTime;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
 
     Color statusColor;
     IconData statusIcon;
@@ -594,17 +615,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (context, child) {
         return Transform.scale(
           scale: _cardScaleAnimation!.value,
-          child: _buildCardContent(capsule, statusColor, statusIcon, statusText, openDate, createdDate),
+          child: _buildCardContent(capsule, statusColor, statusIcon, statusText, openDate, createdDate, isSmallScreen),
         );
       },
     )
-        : _buildCardContent(capsule, statusColor, statusIcon, statusText, openDate, createdDate);
+        : _buildCardContent(capsule, statusColor, statusIcon, statusText, openDate, createdDate, isSmallScreen);
   }
 
-  Widget _buildCardContent(Map<String, dynamic> capsule, Color statusColor, IconData statusIcon, String statusText, DateTime openDate, DateTime createdDate) {
+  Widget _buildCardContent(Map<String, dynamic> capsule, Color statusColor, IconData statusIcon, String statusText, DateTime openDate, DateTime createdDate, bool isSmallScreen) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(24),
+      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -629,8 +650,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Row(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: isSmallScreen ? 36 : 44,
+                height: isSmallScreen ? 36 : 44,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -642,43 +663,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 child: Center(
                   child: Text(
                     (capsule['name'] ?? 'C')[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: isSmallScreen ? 14 : 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: isSmallScreen ? 10 : 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       capsule['name'],
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: isSmallScreen ? 1 : 3),
                     Row(
                       children: [
                         Icon(
                           Icons.person_outline,
-                          size: 16,
+                          size: isSmallScreen ? 12 : 14,
                           color: const Color(0xFF9CA3AF),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'by ${capsule['creatorName']}',
-                          style: const TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 14,
+                        SizedBox(width: isSmallScreen ? 2 : 3),
+                        Expanded(
+                          child: Text(
+                            'by ${capsule['creatorName']}',
+                            style: TextStyle(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: isSmallScreen ? 10 : 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -686,58 +711,63 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: statusColor.withOpacity(0.5)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(statusIcon, color: statusColor, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      statusText,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 6 : 10,
+                      vertical: isSmallScreen ? 3 : 5
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: statusColor.withOpacity(0.5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(statusIcon, color: statusColor, size: isSmallScreen ? 10 : 14),
+                      SizedBox(width: isSmallScreen ? 2 : 3),
+                      Text(
+                        statusText,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: isSmallScreen ? 9 : 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 10 : 14),
 
           // 캡슐 설명 추가
           if (capsule['description'] != null && capsule['description'].toString().trim().isNotEmpty) ...[
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(isSmallScreen ? 10 : 14),
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2937),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 capsule['description'].toString(),
-                style: const TextStyle(
-                  color: Color(0xFFD1D5DB),
-                  fontSize: 14,
+                style: TextStyle(
+                  color: const Color(0xFFD1D5DB),
+                  fontSize: isSmallScreen ? 11 : 13,
                   height: 1.4,
                 ),
-                maxLines: 3,
+                maxLines: isSmallScreen ? 2 : 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: isSmallScreen ? 10 : 14),
           ],
 
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(isSmallScreen ? 10 : 14),
             decoration: BoxDecoration(
               color: const Color(0xFF1F2937),
               borderRadius: BorderRadius.circular(16),
@@ -750,18 +780,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   (capsule['owners'] as List<dynamic>).join(', ').isEmpty
                       ? '없음'
                       : (capsule['owners'] as List<dynamic>).join(', '),
+                  isSmallScreen,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: isSmallScreen ? 6 : 10),
                 _buildInfoRow(
                   Icons.calendar_today_outlined,
                   '생성일',
                   DateFormat('yyyy년 MM월 dd일').format(createdDate),
+                  isSmallScreen,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: isSmallScreen ? 6 : 10),
                 _buildInfoRow(
                   Icons.schedule_outlined,
                   '열람일',
                   DateFormat('yyyy년 MM월 dd일').format(openDate),
+                  isSmallScreen,
                 ),
               ],
             ),
@@ -771,34 +804,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value, bool isSmallScreen) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(
           icon,
-          size: 16,
+          size: isSmallScreen ? 12 : 14,
           color: const Color(0xFF9CA3AF),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: isSmallScreen ? 4 : 6),
         Text(
           '$label:',
-          style: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 14,
+          style: TextStyle(
+            color: const Color(0xFF9CA3AF),
+            fontSize: isSmallScreen ? 10 : 12,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: isSmallScreen ? 3 : 6),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 14,
+              fontSize: isSmallScreen ? 10 : 12,
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.right,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -808,6 +842,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       body: _selectedIndex == 1
@@ -832,7 +870,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             return CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  expandedHeight: 120,
+                  expandedHeight: isSmallScreen ? 90 : 110,
                   floating: false,
                   pinned: true,
                   backgroundColor: const Color(0xFF0F172A),
@@ -848,43 +886,57 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           end: Alignment.bottomCenter,
                         ),
                       ),
-                      padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                      padding: EdgeInsets.fromLTRB(
+                          isSmallScreen ? 12 : 16,
+                          isSmallScreen ? 40 : 50,
+                          isSmallScreen ? 12 : 16,
+                          isSmallScreen ? 8 : 12
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                '안녕하세요 👋',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: const Color(0xFF9CA3AF),
-                                  fontWeight: FontWeight.w500,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '안녕하세요 👋',
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 12 : 14,
+                                    color: const Color(0xFF9CA3AF),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              ValueListenableBuilder<String>(
-                                valueListenable: _selectedCategoryNotifier,
-                                builder: (context, selectedCategory, child) {
-                                  return ShaderMask(
-                                    shaderCallback: (bounds) => const LinearGradient(
-                                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                                    ).createShader(bounds),
-                                    child: Text(
-                                      userName,
-                                      style: const TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                                SizedBox(height: isSmallScreen ? 1 : 2),
+                                Flexible(
+                                  child: ValueListenableBuilder<String>(
+                                    valueListenable: _selectedCategoryNotifier,
+                                    builder: (context, selectedCategory, child) {
+                                      return ShaderMask(
+                                        shaderCallback: (bounds) => const LinearGradient(
+                                          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                        ).createShader(bounds),
+                                        child: Text(
+                                          userName,
+                                          style: TextStyle(
+                                            fontSize: isSmallScreen ? 18 : 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          SizedBox(width: isSmallScreen ? 8 : 12),
                           Container(
                             decoration: BoxDecoration(
                               color: const Color(0xFF374151),
@@ -898,10 +950,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ],
                             ),
                             child: IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.notifications_outlined,
-                                color: Color(0xFF9CA3AF),
-                                size: 24,
+                                color: const Color(0xFF9CA3AF),
+                                size: isSmallScreen ? 18 : 22,
                               ),
                               onPressed: () {
                                 _showNotificationDialog(context);
@@ -918,21 +970,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     children: [
                       // 카테고리 선택
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        child: Row(
-                          children: [
-                            _buildCategoryButton("MINE", "내 캡슐", Icons.person_outline),
-                            const SizedBox(width: 12),
-                            _buildCategoryButton("ELSE", "공유됨", Icons.group_outlined),
-                            const SizedBox(width: 12),
-                            _buildCategoryButton("LIKE", "좋아요", Icons.favorite_outline),
-                          ],
+                        padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 12 : 16,
+                            vertical: isSmallScreen ? 8 : 12
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildCategoryButton("MINE", "내 캡슐", Icons.person_outline),
+                              SizedBox(width: isSmallScreen ? 6 : 10),
+                              _buildCategoryButton("ELSE", "공유됨", Icons.group_outlined),
+                              SizedBox(width: isSmallScreen ? 6 : 10),
+                              _buildCategoryButton("LIKE", "좋아요", Icons.favorite_outline),
+                            ],
+                          ),
                         ),
                       ),
 
                       // 통계 카드
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
                         child: Row(
                           children: [
                             _buildStatCard(
@@ -941,7 +999,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               Icons.create_outlined,
                               const Color(0xFF4F46E5),
                             ),
-                            const SizedBox(width: 16),
+                            SizedBox(width: isSmallScreen ? 6 : 12),
                             _buildStatCard(
                               'Co-Owned',
                               '${counts['coOwned']}',
@@ -952,11 +1010,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: isSmallScreen ? 12 : 20),
 
                       // 캡슐 리스트
                       SizedBox(
-                        height: 400, // 높이를 380에서 400으로 증가
+                        height: screenHeight * (isSmallScreen ? 0.40 : 0.45), // 작은 화면에서 높이 줄임
                         child: ValueListenableBuilder<String>(
                           valueListenable: _selectedCategoryNotifier,
                           builder: (context, selectedCategory, child) {
@@ -1007,8 +1065,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                             if (filteredCapsules.isEmpty) {
                               return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 20),
-                                padding: const EdgeInsets.all(40),
+                                margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+                                padding: EdgeInsets.all(isSmallScreen ? 20 : 32),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF374151),
                                   borderRadius: BorderRadius.circular(24),
@@ -1021,7 +1079,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(20),
+                                      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF4B5563),
                                         borderRadius: BorderRadius.circular(20),
@@ -1032,34 +1090,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             : selectedCategory == "ELSE"
                                             ? Icons.group_outlined
                                             : Icons.favorite_outline,
-                                        size: 48,
+                                        size: isSmallScreen ? 28 : 40,
                                         color: const Color(0xFF9CA3AF),
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: isSmallScreen ? 8 : 12),
                                     Text(
                                       selectedCategory == "MINE"
                                           ? '아직 만든 캡슐이 없습니다'
                                           : selectedCategory == "ELSE"
                                           ? '공유받은 캡슐이 없습니다'
                                           : '좋아요한 캡슐이 없습니다',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 18,
+                                        fontSize: isSmallScreen ? 14 : 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
-                                    const SizedBox(height: 8),
+                                    SizedBox(height: isSmallScreen ? 3 : 6),
                                     Text(
                                       selectedCategory == "MINE"
                                           ? '첫 번째 추억 캡슐을 만들어보세요!'
                                           : selectedCategory == "ELSE"
                                           ? '친구들과 함께 캡슐을 만들어보세요!'
                                           : '마음에 드는 캡슐에 좋아요를 눌러보세요!',
-                                      style: const TextStyle(
-                                        color: Color(0xFF9CA3AF),
-                                        fontSize: 14,
+                                      style: TextStyle(
+                                        color: const Color(0xFF9CA3AF),
+                                        fontSize: isSmallScreen ? 11 : 13,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -1079,12 +1137,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
 
-                      const SizedBox(height: 32),
+                      SizedBox(height: isSmallScreen ? 16 : 24),
 
                       // 캘린더 섹션
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        padding: const EdgeInsets.all(24),
+                        margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+                        padding: EdgeInsets.all(isSmallScreen ? 12 : 20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -1109,49 +1167,51 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(12),
+                                  padding: EdgeInsets.all(isSmallScreen ? 6 : 10),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                                     ),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.calendar_month,
                                     color: Colors.white,
-                                    size: 24,
+                                    size: isSmallScreen ? 18 : 22,
                                   ),
                                 ),
-                                const SizedBox(width: 16),
-                                const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '캡슐 캘린더',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                SizedBox(width: isSmallScreen ? 10 : 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '캡슐 캘린더',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: isSmallScreen ? 14 : 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      '열람일을 확인해보세요',
-                                      style: TextStyle(
-                                        color: Color(0xFF9CA3AF),
-                                        fontSize: 14,
+                                      Text(
+                                        '열람일을 확인해보세요',
+                                        style: TextStyle(
+                                          color: const Color(0xFF9CA3AF),
+                                          fontSize: isSmallScreen ? 10 : 12,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: isSmallScreen ? 12 : 18),
                             Container(
                               decoration: BoxDecoration(
                                 color: const Color(0xFF1F2937),
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(isSmallScreen ? 6 : 12),
                               child: TableCalendar(
                                 firstDay: DateTime.utc(2000, 1, 1),
                                 lastDay: DateTime.utc(2100, 12, 31),
@@ -1166,8 +1226,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 eventLoader: _getEventsForDay,
                                 calendarStyle: CalendarStyle(
                                   outsideDaysVisible: false,
-                                  weekendTextStyle: const TextStyle(color: Colors.white),
-                                  defaultTextStyle: const TextStyle(color: Colors.white),
+                                  weekendTextStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isSmallScreen ? 11 : 13,
+                                  ),
+                                  defaultTextStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isSmallScreen ? 11 : 13,
+                                  ),
                                   todayDecoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1178,13 +1244,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     color: const Color(0xFF10B981),
                                     shape: BoxShape.circle,
                                   ),
-                                  todayTextStyle: const TextStyle(
+                                  todayTextStyle: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: isSmallScreen ? 11 : 13,
                                   ),
-                                  selectedTextStyle: const TextStyle(
+                                  selectedTextStyle: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: isSmallScreen ? 11 : 13,
                                   ),
                                   markerDecoration: BoxDecoration(
                                     color: const Color(0xFFEF4444),
@@ -1194,44 +1262,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 headerStyle: HeaderStyle(
                                   formatButtonVisible: false,
                                   titleCentered: true,
-                                  titleTextStyle: const TextStyle(
+                                  titleTextStyle: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                    fontSize: isSmallScreen ? 13 : 15,
                                   ),
                                   leftChevronIcon: Container(
-                                    padding: const EdgeInsets.all(8),
+                                    padding: EdgeInsets.all(isSmallScreen ? 4 : 6),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF374151),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.chevron_left,
                                       color: Colors.white,
-                                      size: 20,
+                                      size: isSmallScreen ? 14 : 18,
                                     ),
                                   ),
                                   rightChevronIcon: Container(
-                                    padding: const EdgeInsets.all(8),
+                                    padding: EdgeInsets.all(isSmallScreen ? 4 : 6),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF374151),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.chevron_right,
                                       color: Colors.white,
-                                      size: 20,
+                                      size: isSmallScreen ? 14 : 18,
                                     ),
                                   ),
                                 ),
-                                daysOfWeekStyle: const DaysOfWeekStyle(
+                                daysOfWeekStyle: DaysOfWeekStyle(
                                   weekdayStyle: TextStyle(
-                                    color: Color(0xFF9CA3AF),
+                                    color: const Color(0xFF9CA3AF),
                                     fontWeight: FontWeight.w500,
+                                    fontSize: isSmallScreen ? 10 : 11,
                                   ),
                                   weekendStyle: TextStyle(
-                                    color: Color(0xFF9CA3AF),
+                                    color: const Color(0xFF9CA3AF),
                                     fontWeight: FontWeight.w500,
+                                    fontSize: isSmallScreen ? 10 : 11,
                                   ),
                                 ),
                                 calendarBuilders: CalendarBuilders(
@@ -1247,8 +1317,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             markerColor = const Color(0xFFEF4444);
                                           }
                                           return Container(
-                                            width: 6,
-                                            height: 6,
+                                            width: isSmallScreen ? 3 : 5,
+                                            height: isSmallScreen ? 3 : 5,
                                             margin: const EdgeInsets.symmetric(horizontal: 0.5),
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
@@ -1266,7 +1336,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
 
-                      const SizedBox(height: 40),
+                      SizedBox(height: isSmallScreen ? 20 : 32),
                     ],
                   ),
                 ),
@@ -1300,7 +1370,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: 6
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -1318,11 +1391,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildBottomNavItem(IconData outlineIcon, IconData filledIcon, int index, String label) {
     bool isSelected = _selectedIndex == index;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return GestureDetector(
       onTap: () => _onItemTapped(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 10 : 14,
+            vertical: 6
+        ),
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
@@ -1337,16 +1416,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             Icon(
               isSelected ? filledIcon : outlineIcon,
               color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-              size: 24,
+              size: isSmallScreen ? 18 : 22,
             ),
             if (isSelected) ...[
-              const SizedBox(width: 8),
+              SizedBox(width: isSmallScreen ? 4 : 6),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: isSmallScreen ? 11 : 13,
                 ),
               ),
             ],

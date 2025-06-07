@@ -97,6 +97,53 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     super.dispose();
   }
 
+  // 반응형 디자인을 위한 도우미 메서드들
+  double _getResponsivePadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 360) return 12.0;
+    if (screenWidth < 600) return 16.0;
+    return 20.0;
+  }
+
+  double _getResponsiveMargin(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 360) return 8.0;
+    if (screenWidth < 600) return 12.0;
+    return 16.0;
+  }
+
+  double _getResponsiveFontSize(BuildContext context, double baseFontSize) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 360) return baseFontSize * 0.9;
+    if (screenWidth < 600) return baseFontSize;
+    return baseFontSize * 1.1;
+  }
+
+  double _getResponsiveIconSize(BuildContext context, double baseIconSize) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 360) return baseIconSize * 0.9;
+    if (screenWidth < 600) return baseIconSize;
+    return baseIconSize * 1.1;
+  }
+
+  double _getResponsiveHeight(BuildContext context, double baseHeight) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    if (screenHeight < 600) return baseHeight * 0.8;
+    if (screenHeight < 800) return baseHeight * 0.9;
+    return baseHeight;
+  }
+
+  EdgeInsets _getResponsiveEdgeInsets(BuildContext context, EdgeInsets baseInsets) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final factor = screenWidth < 360 ? 0.8 : screenWidth < 600 ? 0.9 : 1.0;
+    return EdgeInsets.fromLTRB(
+      baseInsets.left * factor,
+      baseInsets.top * factor,
+      baseInsets.right * factor,
+      baseInsets.bottom * factor,
+    );
+  }
+
   // 친구 목록 로드
   Future<void> _loadFriends() async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -142,9 +189,19 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('친구 목록 로드 실패: $e'),
+                Icon(Icons.error_outline,
+                  color: Colors.white,
+                  size: _getResponsiveIconSize(context, 20),
+                ),
+                SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                Expanded(
+                  child: Text(
+                    '친구 목록 로드 실패: $e',
+                    style: TextStyle(
+                      fontSize: _getResponsiveFontSize(context, 14),
+                    ),
+                  ),
+                ),
               ],
             ),
             backgroundColor: const Color(0xFFEF4444),
@@ -166,11 +223,21 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     if (_openDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.warning_amber, color: Colors.white),
-              SizedBox(width: 8),
-              Text('열람일을 선택해주세요.'),
+              Icon(Icons.warning_amber,
+                color: Colors.white,
+                size: _getResponsiveIconSize(context, 20),
+              ),
+              SizedBox(width: _getResponsiveMargin(context) * 0.5),
+              Expanded(
+                child: Text(
+                  '열람일을 선택해주세요.',
+                  style: TextStyle(
+                    fontSize: _getResponsiveFontSize(context, 14),
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: const Color(0xFFF59E0B),
@@ -186,11 +253,21 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     if (_openDate!.isBefore(DateTime.now().add(const Duration(hours: 1)))) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.warning_amber, color: Colors.white),
-              SizedBox(width: 8),
-              Text('열람일은 현재 시간보다 최소 1시간 이후여야 합니다.'),
+              Icon(Icons.warning_amber,
+                color: Colors.white,
+                size: _getResponsiveIconSize(context, 20),
+              ),
+              SizedBox(width: _getResponsiveMargin(context) * 0.5),
+              Expanded(
+                child: Text(
+                  '열람일은 현재 시간보다 최소 1시간 이후여야 합니다.',
+                  style: TextStyle(
+                    fontSize: _getResponsiveFontSize(context, 14),
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: const Color(0xFFF59E0B),
@@ -211,11 +288,21 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     if (currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: 8),
-              Text('로그인이 필요합니다.'),
+              Icon(Icons.error_outline,
+                color: Colors.white,
+                size: _getResponsiveIconSize(context, 20),
+              ),
+              SizedBox(width: _getResponsiveMargin(context) * 0.5),
+              Expanded(
+                child: Text(
+                  '로그인이 필요합니다.',
+                  style: TextStyle(
+                    fontSize: _getResponsiveFontSize(context, 14),
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: const Color(0xFFEF4444),
@@ -287,11 +374,21 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.celebration, color: Colors.white),
-                SizedBox(width: 8),
-                Text('캡슐이 성공적으로 생성되었습니다!'),
+                Icon(Icons.celebration,
+                  color: Colors.white,
+                  size: _getResponsiveIconSize(context, 20),
+                ),
+                SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                Expanded(
+                  child: Text(
+                    '캡슐이 성공적으로 생성되었습니다!',
+                    style: TextStyle(
+                      fontSize: _getResponsiveFontSize(context, 14),
+                    ),
+                  ),
+                ),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
@@ -309,9 +406,19 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('캡슐 생성 실패: $e'),
+                Icon(Icons.error_outline,
+                  color: Colors.white,
+                  size: _getResponsiveIconSize(context, 20),
+                ),
+                SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                Expanded(
+                  child: Text(
+                    '캡슐 생성 실패: $e',
+                    style: TextStyle(
+                      fontSize: _getResponsiveFontSize(context, 14),
+                    ),
+                  ),
+                ),
               ],
             ),
             backgroundColor: const Color(0xFFEF4444),
@@ -347,9 +454,19 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.attach_file, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('${newFiles.length}개 파일이 추가되었습니다.'),
+                Icon(Icons.attach_file,
+                  color: Colors.white,
+                  size: _getResponsiveIconSize(context, 20),
+                ),
+                SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                Expanded(
+                  child: Text(
+                    '${newFiles.length}개 파일이 추가되었습니다.',
+                    style: TextStyle(
+                      fontSize: _getResponsiveFontSize(context, 14),
+                    ),
+                  ),
+                ),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
@@ -365,9 +482,19 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Text('파일 선택 실패: $e'),
+              Icon(Icons.error_outline,
+                color: Colors.white,
+                size: _getResponsiveIconSize(context, 20),
+              ),
+              SizedBox(width: _getResponsiveMargin(context) * 0.5),
+              Expanded(
+                child: Text(
+                  '파일 선택 실패: $e',
+                  style: TextStyle(
+                    fontSize: _getResponsiveFontSize(context, 14),
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: const Color(0xFFEF4444),
@@ -384,11 +511,21 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     if (_friendsList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.white),
-              SizedBox(width: 8),
-              Text('추가할 수 있는 친구가 없습니다.'),
+              Icon(Icons.info_outline,
+                color: Colors.white,
+                size: _getResponsiveIconSize(context, 20),
+              ),
+              SizedBox(width: _getResponsiveMargin(context) * 0.5),
+              Expanded(
+                child: Text(
+                  '추가할 수 있는 친구가 없습니다.',
+                  style: TextStyle(
+                    fontSize: _getResponsiveFontSize(context, 14),
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: const Color(0xFF9CA3AF),
@@ -401,6 +538,9 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
       return;
     }
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final dialogHeight = screenHeight * 0.45; // 화면 높이의 45%
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -411,32 +551,35 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.5),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.group_add,
                 color: Colors.white,
-                size: 20,
+                size: _getResponsiveIconSize(context, 20),
               ),
             ),
-            const SizedBox(width: 12),
-            const Text(
-              '친구 선택',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            SizedBox(width: _getResponsiveMargin(context)),
+            Expanded(
+              child: Text(
+                '친구 선택',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: _getResponsiveFontSize(context, 18),
+                ),
               ),
             ),
           ],
         ),
         content: SizedBox(
           width: double.maxFinite,
-          height: 300,
+          height: dialogHeight,
           child: ListView.builder(
             itemCount: _friendsList.length,
             itemBuilder: (context, index) {
@@ -444,7 +587,7 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
               final isSelected = _selectedFriends.any((selected) => selected['uid'] == friend['uid']);
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 8),
+                margin: EdgeInsets.only(bottom: _getResponsiveMargin(context) * 0.5),
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFF4F46E5).withOpacity(0.2) : const Color(0xFF1F2937),
                   borderRadius: BorderRadius.circular(12),
@@ -455,23 +598,28 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                 child: CheckboxListTile(
                   title: Text(
                     friend['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
+                      fontSize: _getResponsiveFontSize(context, 16),
                     ),
                   ),
                   subtitle: Text(
                     friend['email'],
-                    style: const TextStyle(color: Color(0xFFD1D5DB)),
+                    style: TextStyle(
+                      color: const Color(0xFFD1D5DB),
+                      fontSize: _getResponsiveFontSize(context, 12),
+                    ),
                   ),
                   secondary: CircleAvatar(
-                    radius: 20,
+                    radius: _getResponsiveIconSize(context, 20),
                     backgroundColor: const Color(0xFF4F46E5),
                     child: Text(
                       friend['name'][0].toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
+                        fontSize: _getResponsiveFontSize(context, 14),
                       ),
                     ),
                   ),
@@ -503,16 +651,18 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: _getResponsiveEdgeInsets(context,
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
+            child: Text(
               '완료',
               style: TextStyle(
-                color: Color(0xFF4F46E5),
+                color: const Color(0xFF4F46E5),
                 fontWeight: FontWeight.bold,
+                fontSize: _getResponsiveFontSize(context, 16),
               ),
             ),
           ),
@@ -534,15 +684,19 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
               ),
             ),
             Positioned(
-              top: 20,
-              right: 20,
+              top: _getResponsivePadding(context),
+              right: _getResponsivePadding(context),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  icon: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: _getResponsiveIconSize(context, 30),
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -560,7 +714,7 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     required Widget child,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: EdgeInsets.only(bottom: _getResponsiveMargin(context)),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -583,14 +737,14 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(_getResponsivePadding(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.4),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -598,21 +752,23 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                   child: Icon(
                     icon,
                     color: color,
-                    size: 16,
+                    size: _getResponsiveIconSize(context, 16),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: _getResponsiveFontSize(context, 16),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: _getResponsiveMargin(context) * 0.75),
             child,
           ],
         ),
@@ -639,18 +795,30 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
       ),
       child: TextFormField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: _getResponsiveFontSize(context, 16),
+        ),
         maxLines: maxLines,
         maxLength: maxLength,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
-          labelStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-          hintStyle: const TextStyle(color: Color(0xFF6B7280)),
+          labelStyle: TextStyle(
+            color: const Color(0xFF9CA3AF),
+            fontSize: _getResponsiveFontSize(context, 14),
+          ),
+          hintStyle: TextStyle(
+            color: const Color(0xFF6B7280),
+            fontSize: _getResponsiveFontSize(context, 14),
+          ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-          counterStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+          contentPadding: EdgeInsets.all(_getResponsivePadding(context)),
+          counterStyle: TextStyle(
+            color: const Color(0xFF9CA3AF),
+            fontSize: _getResponsiveFontSize(context, 12),
+          ),
         ),
         validator: validator,
       ),
@@ -663,23 +831,23 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: _getResponsiveMargin(context)),
         Text(
           '첨부된 파일 (${_attachedFiles.length}개)',
-          style: const TextStyle(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: _getResponsiveFontSize(context, 16),
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: _getResponsiveMargin(context) * 0.75),
         ...(_attachedFiles.map((file) {
           final fileName = file.split('/').last;
           final isImage = RegExp(r'\.(jpg|jpeg|png|gif)$', caseSensitive: false).hasMatch(fileName);
 
           return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
+            margin: EdgeInsets.only(bottom: _getResponsiveMargin(context) * 0.5),
+            padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.75),
             decoration: BoxDecoration(
               color: const Color(0xFF1F2937),
               borderRadius: BorderRadius.circular(12),
@@ -690,8 +858,8 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: _getResponsiveIconSize(context, 40),
+                  height: _getResponsiveIconSize(context, 40),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: const Color(0xFF4F46E5).withOpacity(0.2),
@@ -703,40 +871,49 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                       borderRadius: BorderRadius.circular(8),
                       child: Image.file(
                         File(file),
-                        width: 40,
-                        height: 40,
+                        width: _getResponsiveIconSize(context, 40),
+                        height: _getResponsiveIconSize(context, 40),
                         fit: BoxFit.cover,
                       ),
                     ),
                   )
-                      : const Icon(Icons.insert_drive_file, color: Color(0xFF4F46E5)),
+                      : Icon(
+                    Icons.insert_drive_file,
+                    color: const Color(0xFF4F46E5),
+                    size: _getResponsiveIconSize(context, 24),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: _getResponsiveMargin(context) * 0.75),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         fileName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
+                          fontSize: _getResponsiveFontSize(context, 14),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         isImage ? '이미지' : '파일',
-                        style: const TextStyle(
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 12,
+                        style: TextStyle(
+                          color: const Color(0xFF9CA3AF),
+                          fontSize: _getResponsiveFontSize(context, 12),
                         ),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: const Color(0xFFEF4444),
+                    size: _getResponsiveIconSize(context, 24),
+                  ),
                   onPressed: () {
                     setState(() {
                       _attachedFiles.remove(file);
@@ -761,33 +938,37 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
         children: [
           Row(
             children: [
-              Checkbox(
-                value: _hasPersonalMemo,
-                onChanged: (value) {
-                  setState(() {
-                    _hasPersonalMemo = value ?? false;
-                    if (!_hasPersonalMemo) {
-                      _personalMemoController.clear();
-                    }
-                  });
-                },
-                activeColor: const Color(0xFF8B5CF6),
+              Transform.scale(
+                scale: MediaQuery.of(context).size.width < 360 ? 0.9 : 1.0,
+                child: Checkbox(
+                  value: _hasPersonalMemo,
+                  onChanged: (value) {
+                    setState(() {
+                      _hasPersonalMemo = value ?? false;
+                      if (!_hasPersonalMemo) {
+                        _personalMemoController.clear();
+                      }
+                    });
+                  },
+                  activeColor: const Color(0xFF8B5CF6),
+                ),
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
                   '개인 메모 작성하기',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontSize: _getResponsiveFontSize(context, 16),
                   ),
                 ),
               ),
             ],
           ),
           if (_hasPersonalMemo) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: _getResponsiveMargin(context) * 0.75),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.75),
               decoration: BoxDecoration(
                 color: const Color(0xFF8B5CF6).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -800,22 +981,22 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                   Icon(
                     Icons.info_outline,
                     color: const Color(0xFF8B5CF6),
-                    size: 16,
+                    size: _getResponsiveIconSize(context, 16),
                   ),
-                  const SizedBox(width: 8),
-                  const Expanded(
+                  SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                  Expanded(
                     child: Text(
                       '개인 메모는 나만의 특별한 추억이나 감정을 담을 수 있습니다.',
                       style: TextStyle(
-                        color: Color(0xFFD1D5DB),
-                        fontSize: 12,
+                        color: const Color(0xFFD1D5DB),
+                        fontSize: _getResponsiveFontSize(context, 12),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: _getResponsiveMargin(context)),
             _buildTextField(
               controller: _personalMemoController,
               label: '개인 메모',
@@ -824,9 +1005,9 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
               maxLength: 1000,
               validator: (value) => null, // 선택사항이므로 검증 없음
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: _getResponsiveMargin(context)),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.75),
               decoration: BoxDecoration(
                 color: const Color(0xFF1F2937),
                 borderRadius: BorderRadius.circular(12),
@@ -839,9 +1020,9 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                   Icon(
                     _isPersonalMemoPrivate ? Icons.lock : Icons.lock_open,
                     color: _isPersonalMemoPrivate ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                    size: 20,
+                    size: _getResponsiveIconSize(context, 20),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: _getResponsiveMargin(context) * 0.75),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -851,30 +1032,33 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                           style: TextStyle(
                             color: _isPersonalMemoPrivate ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: _getResponsiveFontSize(context, 14),
                           ),
                         ),
                         Text(
                           _isPersonalMemoPrivate
                               ? '나만 볼 수 있습니다'
                               : '공동 소유주도 볼 수 있습니다',
-                          style: const TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 12,
+                          style: TextStyle(
+                            color: const Color(0xFF9CA3AF),
+                            fontSize: _getResponsiveFontSize(context, 12),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Switch(
-                    value: !_isPersonalMemoPrivate, // 스위치는 공개 여부를 나타냄
-                    onChanged: (value) {
-                      setState(() {
-                        _isPersonalMemoPrivate = !value;
-                      });
-                    },
-                    activeColor: const Color(0xFF10B981),
-                    inactiveThumbColor: const Color(0xFFEF4444),
+                  Transform.scale(
+                    scale: MediaQuery.of(context).size.width < 360 ? 0.8 : 1.0,
+                    child: Switch(
+                      value: !_isPersonalMemoPrivate, // 스위치는 공개 여부를 나타냄
+                      onChanged: (value) {
+                        setState(() {
+                          _isPersonalMemoPrivate = !value;
+                        });
+                      },
+                      activeColor: const Color(0xFF10B981),
+                      inactiveThumbColor: const Color(0xFFEF4444),
+                    ),
                   ),
                 ],
               ),
@@ -895,33 +1079,37 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
         children: [
           Row(
             children: [
-              Checkbox(
-                value: _hasCommonLetter,
-                onChanged: (value) {
-                  setState(() {
-                    _hasCommonLetter = value ?? false;
-                    if (!_hasCommonLetter) {
-                      _commonLetterController.clear();
-                    }
-                  });
-                },
-                activeColor: const Color(0xFF10B981),
+              Transform.scale(
+                scale: MediaQuery.of(context).size.width < 360 ? 0.9 : 1.0,
+                child: Checkbox(
+                  value: _hasCommonLetter,
+                  onChanged: (value) {
+                    setState(() {
+                      _hasCommonLetter = value ?? false;
+                      if (!_hasCommonLetter) {
+                        _commonLetterController.clear();
+                      }
+                    });
+                  },
+                  activeColor: const Color(0xFF10B981),
+                ),
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
                   '공통 편지 작성하기',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontSize: _getResponsiveFontSize(context, 16),
                   ),
                 ),
               ),
             ],
           ),
           if (_hasCommonLetter) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: _getResponsiveMargin(context) * 0.75),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.75),
               decoration: BoxDecoration(
                 color: const Color(0xFF10B981).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -934,22 +1122,22 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                   Icon(
                     Icons.info_outline,
                     color: const Color(0xFF10B981),
-                    size: 16,
+                    size: _getResponsiveIconSize(context, 16),
                   ),
-                  const SizedBox(width: 8),
-                  const Expanded(
+                  SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                  Expanded(
                     child: Text(
                       '공통 편지는 모든 공동 소유주가 함께 보는 메시지입니다.',
                       style: TextStyle(
-                        color: Color(0xFFD1D5DB),
-                        fontSize: 12,
+                        color: const Color(0xFFD1D5DB),
+                        fontSize: _getResponsiveFontSize(context, 12),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: _getResponsiveMargin(context)),
             _buildTextField(
               controller: _commonLetterController,
               label: '공통 편지',
@@ -958,9 +1146,9 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
               maxLength: 1000,
               validator: (value) => null, // 선택사항이므로 검증 없음
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: _getResponsiveMargin(context) * 0.75),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.75),
               decoration: BoxDecoration(
                 color: const Color(0xFF10B981).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -973,15 +1161,15 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                   Icon(
                     Icons.group,
                     color: const Color(0xFF10B981),
-                    size: 16,
+                    size: _getResponsiveIconSize(context, 16),
                   ),
-                  const SizedBox(width: 8),
-                  const Expanded(
+                  SizedBox(width: _getResponsiveMargin(context) * 0.5),
+                  Expanded(
                     child: Text(
                       '캡슐이 열리면 모든 공동 소유주가 이 편지를 볼 수 있으며, 추가로 더 많은 편지를 작성할 수 있습니다.',
                       style: TextStyle(
-                        color: Color(0xFF10B981),
-                        fontSize: 12,
+                        color: const Color(0xFF10B981),
+                        fontSize: _getResponsiveFontSize(context, 12),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1011,17 +1199,20 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
             end: Alignment.bottomCenter,
           ),
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: Color(0xFF4F46E5)),
-              SizedBox(height: 16),
+              CircularProgressIndicator(
+                color: const Color(0xFF4F46E5),
+                strokeWidth: MediaQuery.of(context).size.width < 360 ? 3.0 : 4.0,
+              ),
+              SizedBox(height: _getResponsiveMargin(context)),
               Text(
                 '캡슐을 생성하고 있습니다...',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: _getResponsiveFontSize(context, 16),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1048,20 +1239,24 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
       slivers: [
         // 커스텀 앱바
         SliverAppBar(
-          expandedHeight: 95,
+          expandedHeight: _getResponsiveHeight(context, 95),
           floating: false,
           pinned: true,
           backgroundColor: const Color(0xFF0F172A),
           leading: const SizedBox(), // 왼쪽 버튼 제거
           actions: [
             Container(
-              margin: const EdgeInsets.all(8),
+              margin: EdgeInsets.all(_getResponsiveMargin(context) * 0.5),
               decoration: BoxDecoration(
                 color: const Color(0xFF374151),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: _getResponsiveIconSize(context, 24),
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -1078,35 +1273,48 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                   end: Alignment.bottomCenter,
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(20, 58, 20, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    '새 캡슐 만들기 ✨',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF9CA3AF),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 1),
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                    ).createShader(bounds),
-                    child: const Text(
-                      '추억을 담아보세요',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              child: SafeArea(
+                child: Padding(
+                  padding: _getResponsiveEdgeInsets(context,
+                      const EdgeInsets.fromLTRB(20, 8, 20, 8)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '새 캡슐 만들기 ✨',
+                          style: TextStyle(
+                            fontSize: _getResponsiveFontSize(context, 12),
+                            color: const Color(0xFF9CA3AF),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
+                      SizedBox(height: _getResponsiveMargin(context) * 0.05),
+                      Flexible(
+                        child: ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                          ).createShader(bounds),
+                          child: Text(
+                            '추억을 담아보세요',
+                            style: TextStyle(
+                              fontSize: _getResponsiveFontSize(context, 18),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -1114,7 +1322,7 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
 
         // 메인 콘텐츠
         SliverPadding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(_getResponsivePadding(context)),
           sliver: SliverToBoxAdapter(
             child: Form(
               key: _formKey,
@@ -1171,56 +1379,61 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _predefinedCategories.map((category) {
-                            final isSelected = _categoryController.text == category;
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _categoryController.text = category;
-                                });
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                decoration: BoxDecoration(
-                                  gradient: isSelected
-                                      ? const LinearGradient(
-                                    colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                                  )
-                                      : null,
-                                  color: isSelected ? null : const Color(0xFF1F2937),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? const Color(0xFF4F46E5)
-                                        : const Color(0xFF4B5563),
-                                  ),
-                                  boxShadow: isSelected
-                                      ? [
-                                    BoxShadow(
-                                      color: const Color(0xFF4F46E5).withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: _predefinedCategories.map((category) {
+                              final isSelected = _categoryController.text == category;
+                              return Container(
+                                margin: EdgeInsets.only(right: _getResponsiveMargin(context) * 0.5),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _categoryController.text = category;
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: _getResponsiveEdgeInsets(context,
+                                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+                                    decoration: BoxDecoration(
+                                      gradient: isSelected
+                                          ? const LinearGradient(
+                                        colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                      )
+                                          : null,
+                                      color: isSelected ? null : const Color(0xFF1F2937),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? const Color(0xFF4F46E5)
+                                            : const Color(0xFF4B5563),
+                                      ),
+                                      boxShadow: isSelected
+                                          ? [
+                                        BoxShadow(
+                                          color: const Color(0xFF4F46E5).withOpacity(0.3),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ]
+                                          : null,
                                     ),
-                                  ]
-                                      : null,
-                                ),
-                                child: Text(
-                                  category,
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.white : const Color(0xFFD1D5DB),
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    fontSize: 14,
+                                    child: Text(
+                                      category,
+                                      style: TextStyle(
+                                        color: isSelected ? Colors.white : const Color(0xFFD1D5DB),
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        fontSize: _getResponsiveFontSize(context, 14),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            }).toList(),
+                          ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: _getResponsiveMargin(context)),
                         _buildTextField(
                           controller: _categoryController,
                           label: '직접 입력',
@@ -1297,7 +1510,7 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(_getResponsivePadding(context)),
                         decoration: BoxDecoration(
                           color: const Color(0xFF1F2937),
                           borderRadius: BorderRadius.circular(12),
@@ -1306,14 +1519,18 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.5),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF4F46E5).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.calendar_today, color: Color(0xFF4F46E5), size: 20),
+                              child: Icon(
+                                Icons.calendar_today,
+                                color: const Color(0xFF4F46E5),
+                                size: _getResponsiveIconSize(context, 20),
+                              ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: _getResponsiveMargin(context) * 0.75),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1324,22 +1541,26 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                                         : '캡슐을 열 날짜와 시간을 선택하세요',
                                     style: TextStyle(
                                       color: _openDate != null ? Colors.white : const Color(0xFF9CA3AF),
-                                      fontSize: 16,
+                                      fontSize: _getResponsiveFontSize(context, 16),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   if (_openDate != null)
                                     Text(
                                       '선택한 시간에 캡슐이 열립니다',
-                                      style: const TextStyle(
-                                        color: Color(0xFF9CA3AF),
-                                        fontSize: 12,
+                                      style: TextStyle(
+                                        color: const Color(0xFF9CA3AF),
+                                        fontSize: _getResponsiveFontSize(context, 12),
                                       ),
                                     ),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios, color: Color(0xFF9CA3AF), size: 16),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: const Color(0xFF9CA3AF),
+                              size: _getResponsiveIconSize(context, 16),
+                            ),
                           ],
                         ),
                       ),
@@ -1361,26 +1582,29 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (_isFriendsLoading)
-                          const Center(
-                            child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+                          Center(
+                            child: CircularProgressIndicator(
+                              color: const Color(0xFF4F46E5),
+                              strokeWidth: MediaQuery.of(context).size.width < 360 ? 3.0 : 4.0,
+                            ),
                           )
                         else ...[
                           if (_selectedFriends.isNotEmpty) ...[
                             Text(
                               '선택된 친구들 (${_selectedFriends.length}명)',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: _getResponsiveFontSize(context, 14),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: _getResponsiveMargin(context) * 0.75),
                             Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
+                              spacing: _getResponsiveMargin(context) * 0.5,
+                              runSpacing: _getResponsiveMargin(context) * 0.5,
                               children: _selectedFriends.map((friend) {
                                 return Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.5),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1391,26 +1615,27 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       CircleAvatar(
-                                        radius: 12,
+                                        radius: _getResponsiveIconSize(context, 12),
                                         backgroundColor: Colors.white.withOpacity(0.2),
                                         child: Text(
                                           friend['name'][0].toUpperCase(),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 10,
+                                            fontSize: _getResponsiveFontSize(context, 10),
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: _getResponsiveMargin(context) * 0.5),
                                       Text(
                                         friend['name'],
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
+                                          fontSize: _getResponsiveFontSize(context, 14),
                                         ),
                                       ),
-                                      const SizedBox(width: 4),
+                                      SizedBox(width: _getResponsiveMargin(context) * 0.25),
                                       GestureDetector(
                                         onTap: () {
                                           setState(() {
@@ -1418,15 +1643,15 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                                           });
                                         },
                                         child: Container(
-                                          padding: const EdgeInsets.all(2),
+                                          padding: EdgeInsets.all(_getResponsiveMargin(context) * 0.125),
                                           decoration: BoxDecoration(
                                             color: Colors.white.withOpacity(0.2),
                                             borderRadius: BorderRadius.circular(10),
                                           ),
-                                          child: const Icon(
+                                          child: Icon(
                                             Icons.close,
                                             color: Colors.white,
-                                            size: 14,
+                                            size: _getResponsiveIconSize(context, 14),
                                           ),
                                         ),
                                       ),
@@ -1435,23 +1660,29 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                                 );
                               }).toList(),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: _getResponsiveMargin(context)),
                           ],
                           Container(
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: _showFriendSelectionDialog,
-                              icon: const Icon(Icons.person_add, color: Colors.white, size: 20),
+                              icon: Icon(
+                                Icons.person_add,
+                                color: Colors.white,
+                                size: _getResponsiveIconSize(context, 20),
+                              ),
                               label: Text(
                                 _selectedFriends.isEmpty ? '친구 추가' : '친구 더 추가',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: _getResponsiveFontSize(context, 16),
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF06B6D4),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: _getResponsiveHeight(context, 16)),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -1476,17 +1707,23 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: _pickFiles,
-                            icon: const Icon(Icons.add, color: Colors.white, size: 20),
-                            label: const Text(
+                            icon: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: _getResponsiveIconSize(context, 20),
+                            ),
+                            label: Text(
                               '파일 선택',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontSize: _getResponsiveFontSize(context, 16),
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFEF4444),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: _getResponsiveHeight(context, 16)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -1499,12 +1736,12 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: _getResponsiveMargin(context)),
 
                   // 최종 생성 버튼
                   Container(
                     width: double.infinity,
-                    height: 56,
+                    height: _getResponsiveHeight(context, 56),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1522,12 +1759,16 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                     ),
                     child: ElevatedButton.icon(
                       onPressed: _createCapsule,
-                      icon: const Icon(Icons.celebration, color: Colors.white, size: 20),
-                      label: const Text(
+                      icon: Icon(
+                        Icons.celebration,
+                        color: Colors.white,
+                        size: _getResponsiveIconSize(context, 20),
+                      ),
+                      label: Text(
                         '캡슐 생성하기',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: _getResponsiveFontSize(context, 16),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1541,7 +1782,7 @@ class _CapsuleCreateScreenState extends State<CapsuleCreateScreen> with TickerPr
                     ),
                   ),
 
-                  const SizedBox(height: 80), // FAB와 겹치지 않도록
+                  SizedBox(height: _getResponsiveHeight(context, 80)), // FAB와 겹치지 않도록
                 ],
               ),
             ),

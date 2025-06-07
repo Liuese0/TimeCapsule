@@ -462,6 +462,9 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
 
   Widget _buildCategoryButton(String category, String label, IconData icon) {
     final isSelected = _selectedCategoryNotifier.value == category;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       child: InkWell(
@@ -470,7 +473,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 10 : 16,
+              vertical: isSmallScreen ? 6 : 10
+          ),
           decoration: BoxDecoration(
             gradient: isSelected
                 ? const LinearGradient(
@@ -493,19 +499,23 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
                 color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-                size: 18,
+                size: isSmallScreen ? 14 : 16,
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 14,
+              SizedBox(width: isSmallScreen ? 4 : 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    fontSize: isSmallScreen ? 11 : 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -516,9 +526,12 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
   }
 
   Widget _buildStatCard(String title, String count, IconData icon, Color color) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -538,7 +551,7 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: EdgeInsets.all(isSmallScreen ? 4 : 6),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
@@ -546,14 +559,14 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
               child: Icon(
                 icon,
                 color: color,
-                size: 16,
+                size: isSmallScreen ? 12 : 16,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: isSmallScreen ? 4 : 8),
             Text(
               count,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                fontSize: isSmallScreen ? 14 : 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -561,9 +574,9 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
             const SizedBox(height: 2),
             Text(
               title,
-              style: const TextStyle(
-                color: Color(0xFFD1D5DB),
-                fontSize: 10,
+              style: TextStyle(
+                color: const Color(0xFFD1D5DB),
+                fontSize: isSmallScreen ? 8 : 10,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 1,
@@ -576,6 +589,9 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
   }
 
   Widget _buildCapsuleCard(Map<String, dynamic> capsule) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     final now = DateTime.now();
     final openDate = capsule['openDate'] as DateTime?;
     final status = capsule['displayStatus'] ?? 'unknown';
@@ -603,7 +619,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      margin: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 12 : 16,
+          vertical: isSmallScreen ? 3 : 6
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -645,10 +664,12 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                   children: [
                     const Icon(Icons.lock_outline, color: Colors.white),
                     const SizedBox(width: 8),
-                    Text(
-                      openDate != null
-                          ? '${DateFormat('yyyy-MM-dd HH:mm').format(openDate)}에 열립니다.'
-                          : '아직 열람할 수 없습니다.',
+                    Expanded(
+                      child: Text(
+                        openDate != null
+                            ? '${DateFormat('yyyy-MM-dd HH:mm').format(openDate)}에 열립니다.'
+                            : '아직 열람할 수 없습니다.',
+                      ),
                     ),
                   ],
                 ),
@@ -663,7 +684,7 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
         },
         onLongPress: () => _showCapsuleOptions(capsule),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(isSmallScreen ? 14 : 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -671,8 +692,8 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
               Row(
                 children: [
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: isSmallScreen ? 40 : 50,
+                    height: isSmallScreen ? 40 : 50,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -691,43 +712,47 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                     child: Center(
                       child: Text(
                         (capsule['name'] ?? 'C')[0].toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: isSmallScreen ? 14 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: isSmallScreen ? 10 : 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           capsule['name'] ?? '제목 없음',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: isSmallScreen ? 14 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: isSmallScreen ? 2 : 4),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.person_outline,
-                              size: 14,
-                              color: Color(0xFF9CA3AF),
+                              size: isSmallScreen ? 12 : 14,
+                              color: const Color(0xFF9CA3AF),
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'by ${capsule['creatorName']}',
-                              style: const TextStyle(
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 12,
+                            SizedBox(width: isSmallScreen ? 2 : 4),
+                            Expanded(
+                              child: Text(
+                                'by ${capsule['creatorName']}',
+                                style: TextStyle(
+                                  color: const Color(0xFF9CA3AF),
+                                  fontSize: isSmallScreen ? 10 : 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -736,56 +761,61 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                     ),
                   ),
                   // 상태 배지
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: statusColor.withOpacity(0.5)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(statusIcon, color: statusColor, size: 14),
-                        const SizedBox(width: 6),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 8 : 12,
+                          vertical: isSmallScreen ? 4 : 6
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: statusColor.withOpacity(0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(statusIcon, color: statusColor, size: isSmallScreen ? 12 : 14),
+                          SizedBox(width: isSmallScreen ? 3 : 6),
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: isSmallScreen ? 10 : 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: isSmallScreen ? 10 : 16),
 
               // 설명
               if (capsule['description'] != null && capsule['description'].isNotEmpty)
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1F2937),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     capsule['description'],
-                    style: const TextStyle(
-                      color: Color(0xFFD1D5DB),
-                      fontSize: 14,
+                    style: TextStyle(
+                      color: const Color(0xFFD1D5DB),
+                      fontSize: isSmallScreen ? 12 : 14,
                       height: 1.4,
                     ),
-                    maxLines: 2,
+                    maxLines: isSmallScreen ? 1 : 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
 
               if (capsule['description'] != null && capsule['description'].isNotEmpty)
-                const SizedBox(height: 16),
+                SizedBox(height: isSmallScreen ? 10 : 16),
 
               // 하단 정보
               Row(
@@ -797,16 +827,20 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                         Icon(
                           Icons.schedule_outlined,
                           color: const Color(0xFF9CA3AF),
-                          size: 14,
+                          size: isSmallScreen ? 12 : 14,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          openDate != null
-                              ? DateFormat('yyyy.MM.dd HH:mm').format(openDate)
-                              : '날짜 미설정',
-                          style: const TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 12,
+                        SizedBox(width: isSmallScreen ? 4 : 6),
+                        Expanded(
+                          child: Text(
+                            openDate != null
+                                ? DateFormat(isSmallScreen ? 'yy.MM.dd' : 'yyyy.MM.dd HH:mm').format(openDate)
+                                : '날짜 미설정',
+                            style: TextStyle(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: isSmallScreen ? 10 : 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -816,7 +850,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                   // 삭제 투표 (있는 경우)
                   if (deleteVotes.isNotEmpty) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 6 : 8,
+                          vertical: isSmallScreen ? 2 : 4
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFEF4444).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
@@ -825,29 +862,29 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.how_to_vote,
-                            color: Color(0xFFEF4444),
-                            size: 12,
+                            color: const Color(0xFFEF4444),
+                            size: isSmallScreen ? 10 : 12,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: isSmallScreen ? 2 : 4),
                           Text(
-                            '삭제투표: ${deleteVotes.length}/${owners.length + 1}',
-                            style: const TextStyle(
-                              color: Color(0xFFEF4444),
-                              fontSize: 10,
+                            '${deleteVotes.length}/${owners.length + 1}',
+                            style: TextStyle(
+                              color: const Color(0xFFEF4444),
+                              fontSize: isSmallScreen ? 8 : 10,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: isSmallScreen ? 4 : 8),
                   ],
 
                   // 좋아요
                   Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: EdgeInsets.all(isSmallScreen ? 3 : 4),
                     decoration: BoxDecoration(
                       color: isLiked
                           ? const Color(0xFFEC4899).withOpacity(0.2)
@@ -862,7 +899,7 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                     child: Icon(
                       isLiked ? Icons.favorite : Icons.favorite_border,
                       color: isLiked ? const Color(0xFFEC4899) : const Color(0xFF9CA3AF),
-                      size: 16,
+                      size: isSmallScreen ? 12 : 16,
                     ),
                   ),
                 ],
@@ -875,9 +912,12 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
   }
 
   Widget _buildEmptyState() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(40),
+      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -896,33 +936,33 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isSmallScreen ? 12 : 20),
             decoration: BoxDecoration(
               color: const Color(0xFF4B5563),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.archive_outlined,
-              size: 48,
-              color: Color(0xFF9CA3AF),
+              size: isSmallScreen ? 32 : 48,
+              color: const Color(0xFF9CA3AF),
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: isSmallScreen ? 10 : 16),
+          Text(
             '아직 캡슐이 없습니다',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: isSmallScreen ? 14 : 18,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: isSmallScreen ? 4 : 8),
+          Text(
             '첫 번째 추억 캡슐을 만들어보세요!',
             style: TextStyle(
-              color: Color(0xFF9CA3AF),
-              fontSize: 14,
+              color: const Color(0xFF9CA3AF),
+              fontSize: isSmallScreen ? 11 : 14,
             ),
             textAlign: TextAlign.center,
           ),
@@ -950,6 +990,9 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       body: _isLoading
@@ -963,7 +1006,7 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
           slivers: [
             // 앱바
             SliverAppBar(
-              expandedHeight: 120,
+              expandedHeight: isSmallScreen ? 100 : 120,
               floating: false,
               pinned: true,
               backgroundColor: const Color(0xFF0F172A),
@@ -979,38 +1022,50 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                       end: Alignment.bottomCenter,
                     ),
                   ),
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                  padding: EdgeInsets.fromLTRB(
+                      isSmallScreen ? 12 : 16,
+                      isSmallScreen ? 45 : 60,
+                      isSmallScreen ? 12 : 16,
+                      isSmallScreen ? 8 : 16
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            '내 캡슐 📦',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF9CA3AF),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                            ).createShader(bounds),
-                            child: Text(
-                              '캡슐 관리',
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '내 캡슐 📦',
+                              style: TextStyle(
+                                fontSize: isSmallScreen ? 12 : 16,
+                                color: const Color(0xFF9CA3AF),
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(height: isSmallScreen ? 1 : 4),
+                            Flexible(
+                              child: ShaderMask(
+                                shaderCallback: (bounds) => const LinearGradient(
+                                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                ).createShader(bounds),
+                                child: Text(
+                                  '캡슐 관리',
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 20 : 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      SizedBox(width: isSmallScreen ? 8 : 12),
                       Row(
                         children: [
                           Container(
@@ -1026,17 +1081,20 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                               ],
                             ),
                             child: IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.refresh,
-                                color: Color(0xFF9CA3AF),
-                                size: 24,
+                                color: const Color(0xFF9CA3AF),
+                                size: isSmallScreen ? 18 : 24,
                               ),
                               onPressed: _loadCapsules,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: isSmallScreen ? 6 : 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: isSmallScreen ? 8 : 12,
+                                vertical: isSmallScreen ? 4 : 8
+                            ),
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
@@ -1052,9 +1110,9 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                             ),
                             child: Text(
                               '${_capsules.length}개',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: isSmallScreen ? 11 : 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1070,7 +1128,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
             // 통계 카드들
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16,
+                    vertical: isSmallScreen ? 8 : 16
+                ),
                 child: Column(
                   children: [
                     // 첫 번째 줄 통계
@@ -1082,14 +1143,14 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                           Icons.archive_outlined,
                           const Color(0xFF4F46E5),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: isSmallScreen ? 6 : 12),
                         _buildStatCard(
                           '내가 만든',
                           '${_capsules.where((c) => c['isCreator'] == true).length}',
                           Icons.create_outlined,
                           const Color(0xFF10B981),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: isSmallScreen ? 6 : 12),
                         _buildStatCard(
                           '공유받은',
                           '${_capsules.where((c) => c['isCreator'] != true).length}',
@@ -1098,7 +1159,7 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: isSmallScreen ? 6 : 12),
                     // 두 번째 줄 통계
                     Row(
                       children: [
@@ -1108,14 +1169,14 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                           Icons.edit_outlined,
                           const Color(0xFFF59E0B),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: isSmallScreen ? 6 : 12),
                         _buildStatCard(
                           '대기중',
                           '${_capsules.where((c) => c['displayStatus'] == 'waiting').length}',
                           Icons.lock_outline,
                           const Color(0xFFEF4444),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: isSmallScreen ? 6 : 12),
                         _buildStatCard(
                           '열림',
                           '${_capsules.where((c) => c['displayStatus'] == 'opened').length}',
@@ -1132,7 +1193,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
             // 카테고리 필터 버튼들
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16,
+                    vertical: isSmallScreen ? 4 : 8
+                ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: ValueListenableBuilder<String>(
@@ -1141,15 +1205,15 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                       return Row(
                         children: [
                           _buildCategoryButton("ALL", "전체", Icons.all_inclusive),
-                          const SizedBox(width: 8),
+                          SizedBox(width: isSmallScreen ? 4 : 8),
                           _buildCategoryButton("MINE", "내가 만든", Icons.person_outline),
-                          const SizedBox(width: 8),
+                          SizedBox(width: isSmallScreen ? 4 : 8),
                           _buildCategoryButton("SHARED", "공유받은", Icons.group_outlined),
-                          const SizedBox(width: 8),
+                          SizedBox(width: isSmallScreen ? 4 : 8),
                           _buildCategoryButton("LIKED", "좋아요", Icons.favorite_outline),
-                          const SizedBox(width: 8),
+                          SizedBox(width: isSmallScreen ? 4 : 8),
                           _buildCategoryButton("DRAFT", "임시저장", Icons.edit_outlined),
-                          const SizedBox(width: 8),
+                          SizedBox(width: isSmallScreen ? 4 : 8),
                           _buildCategoryButton("OPENED", "열림", Icons.celebration_outlined),
                         ],
                       );
@@ -1172,7 +1236,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
                 }
 
                 return SliverPadding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 100),
+                  padding: EdgeInsets.only(
+                      top: isSmallScreen ? 4 : 8,
+                      bottom: isSmallScreen ? 80 : 100
+                  ),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                           (context, index) {
@@ -1192,12 +1259,17 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
           // 간단한 헤더
           SliverToBoxAdapter(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-              child: const Text(
+              padding: EdgeInsets.fromLTRB(
+                  isSmallScreen ? 12 : 16,
+                  isSmallScreen ? 45 : 60,
+                  isSmallScreen ? 12 : 16,
+                  isSmallScreen ? 12 : 20
+              ),
+              child: Text(
                 '캡슐 관리',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 28,
+                  fontSize: isSmallScreen ? 20 : 28,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1235,10 +1307,10 @@ class _CapsulePageScreenState extends State<CapsulePageScreen> with TickerProvid
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
-          child: const Icon(
+          child: Icon(
             Icons.add,
             color: Colors.white,
-            size: 28,
+            size: isSmallScreen ? 24 : 28,
           ),
         ),
       ),
